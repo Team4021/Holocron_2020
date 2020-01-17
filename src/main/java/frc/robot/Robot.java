@@ -29,13 +29,13 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-  NetworkTableEntry tx = table.getEntry("tx");  // angle on x-axis from the crosshairs on the object to origin
-  NetworkTableEntry ty = table.getEntry("ty");  // angle on x-axis from the crosshairs on the object to origin
-  NetworkTableEntry ta = table.getEntry("ta");  // area of the object
+  NetworkTableEntry tx = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ty = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ta = table.getEntry("ta"); // area of the object
   NetworkTableEntry tlong = table.getEntry("tlong"); // length of longest side
   NetworkTableEntry tshort = table.getEntry("tshort"); // length of shortest side
-  NetworkTableEntry tvert = table.getEntry("tvert");  // vertical distance
-  NetworkTableEntry thor = table.getEntry("thor");  // horizontal distance
+  NetworkTableEntry tvert = table.getEntry("tvert"); // vertical distance
+  NetworkTableEntry thor = table.getEntry("thor"); // horizontal distance
   NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different
                                                          // settings for the camera
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
   VictorSP frontRight = new VictorSP(2);
   VictorSP rearLeft = new VictorSP(3);
   VictorSP rearRight = new VictorSP(4);
-  VictorSP carl = new VictorSP(5);
+  VictorSP solo = new VictorSP(5);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -64,8 +64,8 @@ public class Robot extends TimedRobot {
   boolean distanced;
 
   /**
-   * This function is run when the robot is first started up and should be
-   * used for any initialization code.
+   * This function is run when the robot is first started up and should be used
+   * for any initialization code.
    */
   @Override
   public void robotInit() {
@@ -75,12 +75,13 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like diagnostics that you want ran during disabled, autonomous,
+   * teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
@@ -88,14 +89,15 @@ public class Robot extends TimedRobot {
 
   /**
    * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
+   * between different autonomous modes using the dashboard. The sendable chooser
+   * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+   * remove all of the chooser code and uncomment the getString line to get the
+   * auto name from the text box below the Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure below with additional strings. If using the SendableChooser
+   * make sure to add them to the chooser code above as well.
    */
   @Override
   public void autonomousInit() {
@@ -110,13 +112,13 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+    case kCustomAuto:
+      // Put custom auto code here
+      break;
+    case kDefaultAuto:
+    default:
+      // Put default auto code here
+      break;
     }
   }
 
@@ -132,39 +134,14 @@ public class Robot extends TimedRobot {
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
 
-          // Auto-Aligns to the reflective tape
+    if (joy.getRawButton(6)) {                  // Moves us into auto-shooting if button is pressed
+      autoShoot();
 
-    if (joy.getRawButton(6) && camx > 2.3) {
-      left.set(-.5);
-      right.set(-.5);
-    } else if (joy.getRawButton(6) && camx < -2.3) {
-      left.set(.5);
-      right.set(.5);
-    } else if (camx > 2.3 && camx < -2.3) { // FIX THOS SHOIT
-      aligned = true;
-    }
-
-          // Moves to correct distance from reflective tape
-
-    if (joy.getRawButton(6) && aligned == true && camy > 2.3) {
-      left.set(-.5);
-      right.set(.5);
-    } else if (joy.getRawButton(6) && aligned == true && camy < -2.3) {
-      left.set(.5);
-      right.set(-.5);
-    } else if (aligned == true && camy > 2.3 && camy < -2.3) { //FIX THOS SHOIT
-      distanced = true;
-    }
-
-    // Shooting der ball m8
-
-    if (joy.getRawButton(6) && distanced == true) {
-      carl.set(1);
-      Timer.delay(5);
-      carl.set(0);
+    } else {
       aligned = false;
       distanced = false;
     }
+    
   }
 
   /**
@@ -173,4 +150,45 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
   }
+
+  public void autoShoot() {
+
+    // Auto-Aligns to the reflective tape
+
+    if (joy.getRawButton(6) && camx > 2.3) {
+      left.set(-.5);
+      right.set(-.5);
+      // On left, twist right
+    } else if (joy.getRawButton(6) && camx < -2.3) {
+      left.set(.5);
+      right.set(.5);
+      // On right, twist left
+    } else if (joy.getRawButton(6) && camx > 2.3 && camx < -2.3) {
+      aligned = true;
+      // We be aligned
+    }
+
+    // Moves to correct distance from reflective tape
+
+    if (joy.getRawButton(6) && aligned == true && camy > 2.3) {
+      left.set(-.5);
+      right.set(.5);
+    } else if (joy.getRawButton(6) && aligned == true && camy < -2.3) {
+      left.set(.5);
+      right.set(-.5);
+    } else if (joy.getRawButton(6) && aligned == true && camy > 2.3 && camy < -2.3) {
+      distanced = true;
+    }
+
+    // Shooting der ball m8
+
+    if (joy.getRawButton(6) && distanced == true) {
+      solo.set(1);
+      Timer.delay(5);
+      solo.set(0);
+      aligned = false;
+      distanced = false;
+    }
+  }
+
 }
