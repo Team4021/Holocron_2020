@@ -8,13 +8,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.GyroBase;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,9 +28,40 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private final String helloThere = "Hello there";
-  AnalogGyro gyro = new AnalogGyro(0);
-  double tilt;
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  NetworkTableEntry tx = table.getEntry("tx");  // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ty = table.getEntry("ty");  // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ta = table.getEntry("ta");  // area of the object
+  NetworkTableEntry tlong = table.getEntry("tlong"); // length of longest side
+  NetworkTableEntry tshort = table.getEntry("tshort"); // length of shortest side
+  NetworkTableEntry tvert = table.getEntry("tvert");  // vertical distance
+  NetworkTableEntry thor = table.getEntry("thor");  // horizontal distance
+  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different
+                                                         // settings for the camera
+  NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
+
+  Joystick joy = new Joystick(0);
+
+  VictorSP frontLeft = new VictorSP(1);
+  VictorSP frontRight = new VictorSP(2);
+  VictorSP rearLeft = new VictorSP(3);
+  VictorSP rearRight = new VictorSP(4);
+  VictorSP carl = new VictorSP(5);
+
+  SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
+  SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
+
+  DifferentialDrive buffet = new DifferentialDrive(left, right);
+
+  double pizza;
+  double taco;
+
+  double camx;
+  double camy;
+  double camarea;
+
+  boolean aligned;
+  boolean distanced;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -41,7 +72,6 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    SmartDashboard.putString("General Kenobi", helloThere);
   }
 
   /**
@@ -54,8 +84,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    tilt = Math.round(gyro.getAngle());
-    SmartDashboard.putNumber("Tilt", (int)tilt);
   }
 
   /**
@@ -97,6 +125,46 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    pizza = joy.getRawAxis(0);
+    taco = joy.getRawAxis(5);
+    buffet.arcadeDrive(pizza, -taco);
+    camx = tx.getDouble(0.0);
+    camy = ty.getDouble(0.0);
+    camarea = ta.getDouble(0.0);
+
+          // Auto-Aligns to the reflective tape
+
+    if (joy.getRawButton(6) && camx > 2.3) {
+      left.set(-.5);
+      right.set(-.5);
+    } else if (joy.getRawButton(6) && camx < -2.3) {
+      left.set(.5);
+      right.set(.5);
+    } else if (camx > 2.3 && camx < -2.3) { // FIX THOS SHOIT
+      aligned = true;
+    }
+
+          // Moves to correct distance from reflective tape
+
+    if (joy.getRawButton(6) && aligned == true && camy > 2.3) {
+      left.set(-.5);
+      right.set(.5);
+    } else if (joy.getRawButton(6) && aligned == true && camy < -2.3) {
+      left.set(.5);
+      right.set(-.5);
+    } else if (aligned == true && camy > 2.3 && camy < -2.3) { //FIX THOS SHOIT
+      distanced = true;
+    }
+
+    // Shooting der ball m8
+
+    if (joy.getRawButton(6) && distanced == true) {
+      carl.set(1);
+      Timer.delay(5);
+      carl.set(0);
+      aligned = false;
+      distanced = false;
+    }
   }
 
   /**
