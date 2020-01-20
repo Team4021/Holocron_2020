@@ -42,11 +42,11 @@ public class Robot extends TimedRobot {
 
   Joystick joy = new Joystick(0);
 
-  VictorSP frontLeft = new VictorSP(1);
+  VictorSP frontLeft = new VictorSP(8);
   VictorSP frontRight = new VictorSP(2);
-  VictorSP rearLeft = new VictorSP(3);
-  VictorSP rearRight = new VictorSP(4);
-  VictorSP solo = new VictorSP(5);
+  VictorSP rearLeft = new VictorSP(4);
+  VictorSP rearRight = new VictorSP(3);
+  //VictorSP solo = new VictorSP(5);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -56,9 +56,7 @@ public class Robot extends TimedRobot {
   double pizza;
   double taco;
 
-  double camx;
-  double camy;
-  double camarea;
+
 
   boolean aligned;
   boolean distanced;
@@ -127,12 +125,23 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    pizza = joy.getRawAxis(0);
-    taco = joy.getRawAxis(5);
-    buffet.arcadeDrive(pizza, -taco);
-    camx = tx.getDouble(0.0);
-    camy = ty.getDouble(0.0);
-    camarea = ta.getDouble(0.0);
+    pizza = joy.getRawAxis(1);
+    taco = joy.getRawAxis(4);
+    buffet.arcadeDrive(-pizza, taco);
+
+    double camx = tx.getDouble(0.0);
+    double camy = ty.getDouble(0.0);
+    double camarea = ta.getDouble(0.0);
+
+    SmartDashboard.putNumber("LimelightX", x);
+    System.out.println(x);
+    SmartDashboard.putNumber("LimelightY", y);
+    System.out.println(y);
+    SmartDashboard.putNumber("LimelightArea", area);
+    NetworkTableInstance.getDefault();
+    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+    double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
 
     if (joy.getRawButton(6)) {                  // Moves us into auto-shooting if button is pressed
       autoShoot();
@@ -154,7 +163,7 @@ public class Robot extends TimedRobot {
   public void autoShoot() {
 
     // Auto-Aligns to the reflective tape
-
+/*
     if (joy.getRawButton(6) && camx > 2.3) {
       left.set(-.5);
       right.set(-.5);
@@ -183,12 +192,14 @@ public class Robot extends TimedRobot {
     // Shooting der ball m8
 
     if (joy.getRawButton(6) && distanced == true) {
-      solo.set(1);
+      System.out.println("we got through the shooting boiz");
+      //solo.set(1);
       Timer.delay(5);
-      solo.set(0);
+      //solo.set(0);
       aligned = false;
       distanced = false;
     }
   }
-
+*/
+  }
 }
