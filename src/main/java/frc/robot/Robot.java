@@ -14,7 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -36,8 +40,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry tshort = table.getEntry("tshort"); // length of shortest side
   NetworkTableEntry tvert = table.getEntry("tvert"); // vertical distance
   NetworkTableEntry thor = table.getEntry("thor"); // horizontal distance
-  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different
-                                                         // settings for the camera
+  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
@@ -47,6 +50,7 @@ public class Robot extends TimedRobot {
   VictorSP rearLeft = new VictorSP(4);
   VictorSP rearRight = new VictorSP(3);
   //VictorSP solo = new VictorSP(5);
+  
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -56,10 +60,13 @@ public class Robot extends TimedRobot {
   double pizza;
   double taco;
 
-
+  double camx;
+  double camy;
+  double camarea;
 
   boolean aligned;
   boolean distanced;
+  boolean testShot;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -70,6 +77,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    SmartDashboard.putString("General Kenobi", "Hello there");
   }
 
   /**
@@ -129,24 +138,25 @@ public class Robot extends TimedRobot {
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
 
-    double camx = tx.getDouble(0.0);
-    double camy = ty.getDouble(0.0);
-    double camarea = ta.getDouble(0.0);
-
-    SmartDashboard.putNumber("LimelightX", x);
-    System.out.println(x);
-    SmartDashboard.putNumber("LimelightY", y);
-    System.out.println(y);
-    SmartDashboard.putNumber("LimelightArea", area);
+    camx = tx.getDouble(0.0);
+    camy = ty.getDouble(0.0);
+    camarea = ta.getDouble(0.0);
+    SmartDashboard.putNumber("LimelightX", camx);
+    SmartDashboard.putNumber("LimelightY", camy);
+    SmartDashboard.putNumber("LimelightArea", camarea);
     NetworkTableInstance.getDefault();
-    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
-    double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
-    double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
 
-    if (joy.getRawButton(6)) {                  // Moves us into auto-shooting if button is pressed
+    SmartDashboard.putBoolean("Aligned", aligned);
+    SmartDashboard.putBoolean("DistancED", distanced);
+    
+    SmartDashboard.putBoolean("Motor Safety", frontLeft.isSafetyEnabled());
+
+    if (joy.getRawButton(6) == true) {                  // Moves us into auto-shooting if button is pressed
+      SmartDashboard.putBoolean("Button 6 pressed", joy.getRawButton(6));
       autoShoot();
 
     } else {
+      SmartDashboard.putBoolean("Button 6 pressed", joy.getRawButton(6));
       aligned = false;
       distanced = false;
     }
@@ -161,31 +171,36 @@ public class Robot extends TimedRobot {
   }
 
   public void autoShoot() {
-
+    //camx=tx
     // Auto-Aligns to the reflective tape
-/*
-    if (joy.getRawButton(6) && camx > 2.3) {
-      left.set(-.5);
-      right.set(-.5);
+    
+    if ( camx > 5) {
+      left.set(.25);
+      right.set(.25);
+      System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (joy.getRawButton(6) && camx < -2.3) {
-      left.set(.5);
-      right.set(.5);
+    } else if ( camx < -5) {
+      left.set(-.25);
+      right.set(-.25);
+      System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (joy.getRawButton(6) && camx > 2.3 && camx < -2.3) {
+    } else if ( camx > -5 && camx < 5) {
       aligned = true;
+      System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
+    } else {
+      System.out.println("I am the print line... that doesn't do anything. Camx is "+camx);
     }
 
     // Moves to correct distance from reflective tape
 
     if (joy.getRawButton(6) && aligned == true && camy > 2.3) {
-      left.set(-.5);
-      right.set(.5);
+      left.set(-.25);
+      right.set(.25);
     } else if (joy.getRawButton(6) && aligned == true && camy < -2.3) {
-      left.set(.5);
-      right.set(-.5);
-    } else if (joy.getRawButton(6) && aligned == true && camy > 2.3 && camy < -2.3) {
+      left.set(.25);
+      right.set(-.25);
+    } else if (joy.getRawButton(6) && aligned == true && camy < 2.3 && camy > -2.3) {
       distanced = true;
     }
 
@@ -196,10 +211,10 @@ public class Robot extends TimedRobot {
       //solo.set(1);
       Timer.delay(5);
       //solo.set(0);
+      testShot = false;
       aligned = false;
       distanced = false;
     }
-  }
-*/
+  
   }
 }
