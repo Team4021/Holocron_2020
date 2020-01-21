@@ -66,8 +66,6 @@ public class Robot extends TimedRobot {
 
   boolean aligned;
   boolean distanced;
-  boolean testShot;
-
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -211,7 +209,6 @@ public class Robot extends TimedRobot {
       //solo.set(1);
       Timer.delay(5);
       //solo.set(0);
-      testShot = false;
       aligned = false;
       distanced = false;
     }
