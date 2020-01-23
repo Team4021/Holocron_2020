@@ -65,6 +65,7 @@ public class Robot extends TimedRobot {
 
   boolean aligned;
   boolean distanced;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -124,6 +125,8 @@ public class Robot extends TimedRobot {
       // Put default auto code here
       break;
     }
+
+    autoShoot("auto");
   }
 
   /**
@@ -149,7 +152,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Motor Safety", frontLeft.isSafetyEnabled());
 
     if (joy.getRawButton(6) == true) {// Moves us into auto-shooting if button is pressed
-      autoShoot();
+      autoShoot("tele");
     } else {
       aligned = false;
       distanced = false;
@@ -165,12 +168,26 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-  public void autoShoot() {
+  public void autoShoot(String mode) {
+    double upperYBound = 0; // just initializing, they'll never be 0
+    double lowerYBound = 0;// just initializing, they'll never be 0
     // Auto-Aligns to the reflective tape
     aligned = false;
     distanced = false;
 
-    if (joy.getRawButton(6) && camx > 5) {
+    switch (mode) {
+      case "auto":
+        upperYBound = -3;
+        lowerYBound = -6;
+        break;
+      
+      case "tele":
+        upperYBound = 2.3;
+        lowerYBound = -2.3;
+        break;
+    }
+
+    if (camx > 5) {
       left.set(.3);
       right.set(.3);
       aligned = false;
@@ -192,15 +209,15 @@ public class Robot extends TimedRobot {
 
     // Moves to correct distance from reflective tape
 
-    if (joy.getRawButton(6) && camy > 2.3 && aligned == true) {
+    if (joy.getRawButton(6) && camy > upperYBound && aligned == true) {
       left.set(-.3);
       right.set(.3);
       distanced = false;
-    } else if (joy.getRawButton(6) && camy < -2.3 && aligned == true) {
+    } else if (joy.getRawButton(6) && camy < lowerYBound && aligned == true) {
       left.set(.3);
       right.set(-.3);
       distanced = false;
-    } else if (joy.getRawButton(6) && camy < 2.3 && camy > -2.3 && aligned == true) {
+    } else if (joy.getRawButton(6) && camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
     }
 
