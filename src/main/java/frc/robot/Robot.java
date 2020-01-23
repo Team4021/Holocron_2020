@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -149,14 +148,12 @@ public class Robot extends TimedRobot {
     
     SmartDashboard.putBoolean("Motor Safety", frontLeft.isSafetyEnabled());
 
-    if (joy.getRawButton(6) == true) {                  // Moves us into auto-shooting if button is pressed
-      SmartDashboard.putBoolean("Button 6 pressed", joy.getRawButton(6));
+    if (joy.getRawButton(6) == true) {// Moves us into auto-shooting if button is pressed
       autoShoot();
-
     } else {
-      SmartDashboard.putBoolean("Button 6 pressed", joy.getRawButton(6));
       aligned = false;
       distanced = false;
+      //solo.set(0);
     }
     
   }
@@ -169,20 +166,23 @@ public class Robot extends TimedRobot {
   }
 
   public void autoShoot() {
-    //camx=tx
     // Auto-Aligns to the reflective tape
-    
-    if ( camx > 5) {
-      left.set(.25);
-      right.set(.25);
+    aligned = false;
+    distanced = false;
+
+    if (joy.getRawButton(6) && camx > 5) {
+      left.set(.3);
+      right.set(.3);
+      aligned = false;
       System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if ( camx < -5) {
-      left.set(-.25);
-      right.set(-.25);
+    } else if (joy.getRawButton(6) && camx < -5) {
+      left.set(-.3);
+      right.set(-.3);
+      aligned = false;
       System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if ( camx > -5 && camx < 5) {
+    } else if (joy.getRawButton(6) && camx > -5 && camx < 5) {
       aligned = true;
       System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
@@ -192,26 +192,25 @@ public class Robot extends TimedRobot {
 
     // Moves to correct distance from reflective tape
 
-    if (joy.getRawButton(6) && aligned == true && camy > 2.3) {
-      left.set(-.25);
-      right.set(.25);
-    } else if (joy.getRawButton(6) && aligned == true && camy < -2.3) {
-      left.set(.25);
-      right.set(-.25);
-    } else if (joy.getRawButton(6) && aligned == true && camy < 2.3 && camy > -2.3) {
+    if (joy.getRawButton(6) && camy > 2.3 && aligned == true) {
+      left.set(-.3);
+      right.set(.3);
+      distanced = false;
+    } else if (joy.getRawButton(6) && camy < -2.3 && aligned == true) {
+      left.set(.3);
+      right.set(-.3);
+      distanced = false;
+    } else if (joy.getRawButton(6) && camy < 2.3 && camy > -2.3 && aligned == true) {
       distanced = true;
     }
 
     // Shooting der ball m8
 
-    if (joy.getRawButton(6) && distanced == true) {
+    if (joy.getRawButton(6) && distanced == true && aligned == true) {
       System.out.println("we got through the shooting boiz");
       //solo.set(1);
-      Timer.delay(5);
-      //solo.set(0);
       aligned = false;
       distanced = false;
     }
-  
   }
 }
