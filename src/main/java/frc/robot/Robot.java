@@ -180,15 +180,15 @@ public class Robot extends TimedRobot {
     }
 
     if (camx > 1.5) {
-      left.set((camx*camx+1)/(4*camx*camx+16));
-      right.set((camx*camx+1)/(4*camx*camx+16));
+      left.set((camx*camx+1)/(2*camx*camx+16));
+      right.set(0);
       System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
       System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
     } else if (camx < -1.5) {
-      left.set(-(camx*camx+1)/(4*camx*camx+16));
-      right.set(-(camx*camx+1)/(4*camx*camx+16));
+      left.set(0);
+      right.set(-(camx*camx+1)/(2*camx*camx+16));
       System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
       System.out.println("Should be turning left ("+camx+")");
