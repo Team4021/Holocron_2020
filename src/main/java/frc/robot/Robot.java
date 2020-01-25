@@ -60,6 +60,9 @@ public class Robot extends TimedRobot {
   double camx;
   double camy;
   double camarea;
+  double targetWidth;
+  double degreeWidth = 0;
+  double targetRatio;
 
   boolean aligned;
   boolean distanced;
@@ -132,6 +135,11 @@ public class Robot extends TimedRobot {
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
+    targetWidth = thor.getDouble(0);
+    degreeWidth = targetWidth * 0.16875;// degrees per pixel
+    targetRatio = degreeWidth/42.0750220512;
+
+
     double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     SmartDashboard.putNumber("Vision", tv);
     SmartDashboard.putNumber("LimelightX", camx);
@@ -180,7 +188,7 @@ public class Robot extends TimedRobot {
     }
 
     if (camx > 1.5) {
-      left.set((camx*camx+1)/(2*camx*camx+16));
+      left.set(targetRatio*(camx*camx+1)/(2*camx*camx+16));
       right.set(0);
       System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
@@ -188,7 +196,7 @@ public class Robot extends TimedRobot {
       // On left, twist right
     } else if (camx < -1.5) {
       left.set(0);
-      right.set(-(camx*camx+1)/(2*camx*camx+16));
+      right.set(-targetRatio*(camx*camx+1)/(2*camx*camx+16));
       System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
       System.out.println("Should be turning left ("+camx+")");
