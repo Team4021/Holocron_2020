@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry tx = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ty = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ta = table.getEntry("ta"); // area of the object
+  NetworkTableEntry tv = table.getEntry("tv"); // 1 if have vision 0 if no vision
   NetworkTableEntry tlong = table.getEntry("tlong"); // length of longest side
   NetworkTableEntry tshort = table.getEntry("tshort"); // length of shortest side
   NetworkTableEntry tvert = table.getEntry("tvert"); // vertical distance
@@ -131,6 +132,8 @@ public class Robot extends TimedRobot {
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
+    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    SmartDashboard.putNumber("Vision", tv);
     SmartDashboard.putNumber("LimelightX", camx);
     SmartDashboard.putNumber("LimelightY", camy);
     SmartDashboard.putNumber("LimelightArea", camarea);
@@ -141,14 +144,13 @@ public class Robot extends TimedRobot {
     
     SmartDashboard.putBoolean("Motor Safety", frontLeft.isSafetyEnabled());
 
-    if (joy.getRawButton(6) == true) {// Moves us into auto-shooting if button is pressed
+    if (joy.getRawButton(6) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
       autoShoot("tele");
     } else {
       aligned = false;
       distanced = false;
       //solo.set(0);
     }
-    
   }
 
   /**
@@ -167,8 +169,8 @@ public class Robot extends TimedRobot {
 
     switch (mode) {
       case "auto":
-        upperYBound = -3;
-        lowerYBound = -6;
+        upperYBound = -7;
+        lowerYBound = -9;
         break;
       
       case "tele":
@@ -177,21 +179,23 @@ public class Robot extends TimedRobot {
         break;
     }
 
-    if (camx > 5) {
-      left.set(.3);
-      right.set(.3);
+    if (camx > 1.5) {
+      left.set((camx*camx+1)/(4*camx*camx+16));
+      right.set((camx*camx+1)/(4*camx*camx+16));
+      System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
       System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (camx < -5) {
-      left.set(-.3);
-      right.set(-.3);
+    } else if (camx < -1.5) {
+      left.set(-(camx*camx+1)/(4*camx*camx+16));
+      right.set(-(camx*camx+1)/(4*camx*camx+16));
+      System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
       System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (camx > -5 && camx < 5) {
+    } else if (camx > -1.5 && camx < 1.5) {
       aligned = true;
-      System.out.println("Should be staying put because the x value is "+camx);
+    //  System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
     } else {
       System.out.println("I am the print line... that doesn't do anything. Camx is "+camx);
@@ -200,12 +204,12 @@ public class Robot extends TimedRobot {
     // Moves to correct distance from reflective tape
 
     if (camy > upperYBound && aligned == true) {
-      left.set(-.3);
-      right.set(.3);
+      left.set(-(camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
+      right.set((camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
       distanced = false;
     } else if (camy < lowerYBound && aligned == true) {
-      left.set(.3);
-      right.set(-.3);
+      left.set((camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
+      right.set(-(camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
       distanced = false;
     } else if (camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
