@@ -27,10 +27,6 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   NetworkTableEntry tx = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ty = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
@@ -49,6 +45,7 @@ public class Robot extends TimedRobot {
   VictorSP rearLeft = new VictorSP(4);
   VictorSP rearRight = new VictorSP(3);
   //VictorSP solo = new VictorSP(5);
+  //VictorSP tagAxle = new VictorSP(5); TAG AXLE MOTOR
   
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
@@ -72,9 +69,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
 
     SmartDashboard.putString("General Kenobi", "Hello there");
   }
@@ -106,9 +100,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+
   }
 
   /**
@@ -116,16 +108,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-    case kCustomAuto:
-      // Put custom auto code here
-      break;
-    case kDefaultAuto:
-    default:
-      // Put default auto code here
-      break;
-    }
-
+    //insert delay (duration determined by selecter on ShuffleBoard)
     autoShoot("auto");
   }
 
@@ -137,6 +120,13 @@ public class Robot extends TimedRobot {
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
+   /* if (joy.getRawButton(1)) {
+      tagAxle.set(.25);
+    } else if (joy.getRawButton(2)) {
+      tagAxle.set(-.25);                TAG AXLE
+    } else {
+      tagAxle.set(0);
+    } */
 
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
@@ -182,8 +172,8 @@ public class Robot extends TimedRobot {
         break;
       
       case "tele":
-        upperYBound = 2.3;
-        lowerYBound = -2.3;
+        upperYBound = -7;
+        lowerYBound = -9;
         break;
     }
 
@@ -193,13 +183,13 @@ public class Robot extends TimedRobot {
       aligned = false;
       System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (joy.getRawButton(6) && camx < -5) {
+    } else if (camx < -5) {
       left.set(-.3);
       right.set(-.3);
       aligned = false;
       System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (joy.getRawButton(6) && camx > -5 && camx < 5) {
+    } else if (camx > -5 && camx < 5) {
       aligned = true;
       System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
@@ -209,21 +199,21 @@ public class Robot extends TimedRobot {
 
     // Moves to correct distance from reflective tape
 
-    if (joy.getRawButton(6) && camy > upperYBound && aligned == true) {
+    if (camy > upperYBound && aligned == true) {
       left.set(-.3);
       right.set(.3);
       distanced = false;
-    } else if (joy.getRawButton(6) && camy < lowerYBound && aligned == true) {
+    } else if (camy < lowerYBound && aligned == true) {
       left.set(.3);
       right.set(-.3);
       distanced = false;
-    } else if (joy.getRawButton(6) && camy < upperYBound && camy > lowerYBound && aligned == true) {
+    } else if (camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
     }
 
     // Shooting der ball m8
 
-    if (joy.getRawButton(6) && distanced == true && aligned == true) {
+    if (distanced == true && aligned == true) {
       System.out.println("we got through the shooting boiz");
       //solo.set(1);
       aligned = false;
