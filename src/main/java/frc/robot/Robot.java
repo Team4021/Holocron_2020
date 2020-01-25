@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.GyroBase;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
-import PLEASEEEEEEEEE
+import edu.wpi.first.wpilibj.Spark;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -32,6 +32,10 @@ public class Robot extends TimedRobot {
   private final String helloThere = "Hello there";
   AnalogGyro gyro = new AnalogGyro(0);
   double tilt;
+
+  Spark shooter = new Spark(0);
+
+  Joystick xbox = new Joystick(0);
 
   /**
    * This function is run when the robot is first started up and should be
@@ -57,6 +61,15 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     tilt = Math.round(gyro.getAngle());
     SmartDashboard.putNumber("Tilt", (int)tilt);
+
+    if(xbox.getRawButton(1)) {
+      shooter.set(1);
+    } else if (xbox.getRawButton(2)) {
+      shooter.set(-.8);
+    } else {
+      shooter.set(0);
+    }
+
   }
 
   /**
