@@ -36,7 +36,8 @@ public class Robot extends TimedRobot {
   NetworkTableEntry tshort = table.getEntry("tshort"); // length of shortest side
   NetworkTableEntry tvert = table.getEntry("tvert"); // vertical distance
   NetworkTableEntry thor = table.getEntry("thor"); // horizontal distance
-  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
+  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different
+                                                         // settings for the camera
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
@@ -45,9 +46,8 @@ public class Robot extends TimedRobot {
   VictorSP frontRight = new VictorSP(2);
   VictorSP rearLeft = new VictorSP(4);
   VictorSP rearRight = new VictorSP(3);
-  //VictorSP solo = new VictorSP(5);
-  //VictorSP tagAxle = new VictorSP(5); TAG AXLE MOTOR
-  
+  // VictorSP solo = new VictorSP(5);
+  // VictorSP tagAxle = new VictorSP(5); TAG AXLE MOTOR
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -63,6 +63,10 @@ public class Robot extends TimedRobot {
   double targetWidth;
   double degreeWidth = 0;
   double targetRatio;
+  double targetRatioInverse;
+
+  boolean proportionalTarget = false;// for testing purposes, will choose between target/wheel for proportionate
+                                     // distance
 
   boolean aligned;
   boolean distanced;
@@ -112,7 +116,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    //insert delay (duration determined by selecter on ShuffleBoard)
+    // insert delay (duration determined by selecter on ShuffleBoard)
     autoShoot("auto");
   }
 
@@ -124,22 +128,24 @@ public class Robot extends TimedRobot {
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
-   /* if (joy.getRawButton(1)) {
-      tagAxle.set(.25);
-    } else if (joy.getRawButton(2)) {
-      tagAxle.set(-.25);                TAG AXLE
-    } else {
-      tagAxle.set(0);
-    } */
+    /*
+     * if (joy.getRawButton(1)) { tagAxle.set(.25); } else if (joy.getRawButton(2))
+     * { tagAxle.set(-.25); TAG AXLE } else { tagAxle.set(0); }
+     */
 
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
     targetWidth = thor.getDouble(0);
     degreeWidth = targetWidth * 0.16875;// degrees per pixel
-    targetRatio = 1.06021762246/degreeWidth; // ratio of width of desired target to width of target (13 ft away and perpendicular)
-    // 
-
+    targetRatio = 1.06021762246 / degreeWidth; // ratio of width of desired target to width of target (13 ft away and
+                                               // perpendicular)
+    // if the robot is closer, then it should move more (and if farther away, it
+    // should move less)
+    // up close, degreeWidth will be greater than 1.0602..., and so the robot will
+    // try to be more accurate
+    // farther away, it will have more leeway
+    targetRatioInverse = 1 / targetRatio;
 
     double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     SmartDashboard.putNumber("Vision", tv);
@@ -150,7 +156,7 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putBoolean("Aligned", aligned);
     SmartDashboard.putBoolean("DistancED", distanced);
-    
+
     SmartDashboard.putBoolean("Motor Safety", frontLeft.isSafetyEnabled());
 
     if (joy.getRawButton(6) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
@@ -158,7 +164,7 @@ public class Robot extends TimedRobot {
     } else {
       aligned = false;
       distanced = false;
-      //solo.set(0);
+      // solo.set(0);
     }
   }
 
@@ -177,48 +183,49 @@ public class Robot extends TimedRobot {
     distanced = false;
 
     switch (mode) {
-      case "auto":
-        upperYBound = -7;
-        lowerYBound = -9;
-        break;
-      
-      case "tele":
-        upperYBound = -7;
-        lowerYBound = -9;
-        break;
+    case "auto":
+      upperYBound = -7;
+      lowerYBound = -9;
+      break;
+
+    case "tele":
+      upperYBound = -7;
+      lowerYBound = -9;
+      break;
     }
 
-    if (camx > targetRatio*1.5) {
-      left.set((camx*camx+1)/(2*camx*camx+16));
+    if (camx > (proportionalTarget ? targetRatio : 1) * 1.5) {
+      left.set((proportionalTarget ? 1 : targetRatioInverse) * (camx * camx + 1) / (2 * camx * camx + 16));
       right.set(0);
-      System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
+      // System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
-      System.out.println("Should be turning right ("+camx+")");
+      // System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (camx <targetRatio* -1.5) {
+    } else if (camx < (proportionalTarget ? targetRatio : 1) * -1.5) {
       left.set(0);
-      right.set(-(camx*camx+1)/(2*camx*camx+16));
-      System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
+      right.set((proportionalTarget ? 1 : targetRatioInverse) * -(camx * camx + 1) / (2 * camx * camx + 16));
+      // System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
-      System.out.println("Should be turning left ("+camx+")");
+      // System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (camx > targetRatio*-1.5 && targetRatio*camx < 1.5) {
+    } else if (camx > (proportionalTarget ? targetRatio : 1) * -1.5
+        && (proportionalTarget ? targetRatio : 1) * camx < 1.5) {
       aligned = true;
-    //  System.out.println("Should be staying put because the x value is "+camx);
+      // System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
     } else {
-      System.out.println("I am the print line... that doesn't do anything. Camx is "+camx);
+      System.out.println("I am the print line... that doesn't do anything. Camx is " + camx);
     }
 
     // Moves to correct distance from reflective tape
 
     if (camy > upperYBound && aligned == true) {
-      left.set(-(camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
-      right.set((camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
+      left.set(-(camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
+      right.set((camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
       distanced = false;
     } else if (camy < lowerYBound && aligned == true) {
-      left.set((camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
-      right.set(-(camy*camy+16*camy+65)/(1.5*(camy*camy+16*camy+72)));
+      left.set((camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
+      right.set(-(camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
       distanced = false;
     } else if (camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
@@ -228,7 +235,7 @@ public class Robot extends TimedRobot {
 
     if (distanced == true && aligned == true) {
       System.out.println("we got through the shooting boiz");
-      //solo.set(1);
+      // solo.set(1);
       aligned = false;
       distanced = false;
     }
