@@ -65,9 +65,6 @@ public class Robot extends TimedRobot {
   double targetRatio;
   double targetRatioInverse;
 
-  boolean proportionalTarget = false;// for testing purposes, will choose between target/wheel for proportionate
-                                     // distance
-
   boolean aligned;
   boolean distanced;
 
@@ -138,14 +135,14 @@ public class Robot extends TimedRobot {
     camarea = ta.getDouble(0.0);
     targetWidth = thor.getDouble(0);
     degreeWidth = targetWidth * 0.16875;// degrees per pixel
-    targetRatio = 1.06021762246 / degreeWidth; // ratio of width of desired target to width of target (13 ft away and
-                                               // perpendicular)
+    targetRatio = 10 / degreeWidth; // ratio of width of desired target to width of target (13 ft away and
+    // perpendicular)
     // if the robot is closer, then it should move more (and if farther away, it
     // should move less)
     // up close, degreeWidth will be greater than 1.0602..., and so the robot will
     // try to be more accurate
     // farther away, it will have more leeway
-    targetRatioInverse = 1 / targetRatio;
+    System.out.println("The target is " + targetWidth + " pixels wide, " + degreeWidth + " degrees.");
 
     double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     SmartDashboard.putNumber("Vision", tv);
@@ -158,6 +155,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("DistancED", distanced);
 
     SmartDashboard.putBoolean("Motor Safety", frontLeft.isSafetyEnabled());
+
+    SmartDashboard.putNumber("Angle width", degreeWidth);
 
     if (joy.getRawButton(6) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
       autoShoot("tele");
@@ -194,22 +193,25 @@ public class Robot extends TimedRobot {
       break;
     }
 
-    if (camx > (proportionalTarget ? targetRatio : 1) * 1.5) {
-      left.set((proportionalTarget ? 1 : targetRatioInverse) * (camx * camx + 1) / (2 * camx * camx + 16));
+    if (camx > targetRatio * 1.5) {
+      left.set((camx * camx + 1) / (2 * camx * camx + 16));
       right.set(0);
+      System.out.println("Left set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
+          + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
       // System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
       // System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (camx < (proportionalTarget ? targetRatio : 1) * -1.5) {
+    } else if (camx < targetRatio * -1.5) {
       left.set(0);
-      right.set((proportionalTarget ? 1 : targetRatioInverse) * -(camx * camx + 1) / (2 * camx * camx + 16));
+      right.set(-(camx * camx + 1) / (2 * camx * camx + 16));
+      System.out.println("Right set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
+          + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
       // System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
       // System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (camx > (proportionalTarget ? targetRatio : 1) * -1.5
-        && (proportionalTarget ? targetRatio : 1) * camx < 1.5) {
+    } else if (camx > targetRatio * -1.5 && camx < targetRatio * 1.5) {
       aligned = true;
       // System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
