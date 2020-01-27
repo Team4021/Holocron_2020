@@ -60,9 +60,6 @@ public class Robot extends TimedRobot {
   double camx;
   double camy;
   double camarea;
-  double targetWidth;
-  double degreeWidth = 0;
-  double targetRatio;
 
   boolean aligned;
   boolean distanced;
@@ -135,10 +132,6 @@ public class Robot extends TimedRobot {
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
-    targetWidth = thor.getDouble(0);
-    degreeWidth = targetWidth * 0.16875;// degrees per pixel
-    targetRatio = 1.06021762246/degreeWidth; // ratio of width of desired target to width of target (13 ft away and perpendicular)
-    // 
 
 
     double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
@@ -188,21 +181,21 @@ public class Robot extends TimedRobot {
         break;
     }
 
-    if (camx > targetRatio*1.5) {
+    if (camx > 1.5) {
       left.set((camx*camx+1)/(2*camx*camx+16));
       right.set(0);
       System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
       System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (camx <targetRatio* -1.5) {
+    } else if (camx <-1.5) {
       left.set(0);
       right.set(-(camx*camx+1)/(2*camx*camx+16));
       System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
       System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (camx > targetRatio*-1.5 && targetRatio*camx < 1.5) {
+    } else if (camx > -1.5 && camx < 1.5) {
       aligned = true;
     //  System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
