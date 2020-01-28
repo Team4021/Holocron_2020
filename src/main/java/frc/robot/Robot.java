@@ -15,11 +15,12 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Relay.*;
-import edu.wpi.first.wpilibj.DigitInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -50,7 +51,10 @@ public class Robot extends TimedRobot {
   VictorSP rearRight = new VictorSP(3);
   // VictorSP solo = new VictorSP(5);
   PWMVictorSPX lift1 = new PWMVictorSPX(0);
-  PWMVictorSPX lift2 = new PMWVictorSPX(1);
+  PWMVictorSPX lift2 = new PWMVictorSPX(1);
+
+  Relay belt = new Relay(0);
+  Relay intake = new Relay(1);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -71,6 +75,11 @@ public class Robot extends TimedRobot {
 
   boolean aligned;
   boolean distanced;
+
+  DigitalInput inDown = new DigitalInput(0);
+  DigitalInput inUp = new DigitalInput(1);
+  DigitalInput liftUp = new DigitalInput(2);
+  DigitalInput liftDown = new DigitalInput(3);
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -129,6 +138,24 @@ public class Robot extends TimedRobot {
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
+
+    // Moves intake up and down
+    if (inDown.get() == false && joy.getRawButton(1)) {
+      intake.set(Value.kForward);
+    } else if (inUp.get() == false && joy.getRawButton(2)) {
+      intake.set(Value.kReverse);
+    } else {
+      intake.set(Value.kOff);
+    }
+
+    // Moves lift up and down
+    if (liftDown.get() == false && joy.getRawButton(3)) {
+      lift.set(1);
+    } else if (liftUp.get() == false && joy.getRawButton(4)) {
+      lift.set(-1);
+    } else {
+      lift.set(0);
+    }
 
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
