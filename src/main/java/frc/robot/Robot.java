@@ -65,6 +65,8 @@ public class Robot extends TimedRobot {
   double targetRatio;
   double targetRatioInverse;
 
+  boolean moveBack;
+
   boolean aligned;
   boolean distanced;
 
@@ -178,6 +180,7 @@ public class Robot extends TimedRobot {
     double upperYBound = 0; // just initializing, they'll never be 0
     double lowerYBound = 0;// just initializing, they'll never be 0
     // Auto-Aligns to the reflective tape
+    moveBack = camy<-8?true:false;
     aligned = false;
     distanced = false;
 
@@ -188,25 +191,35 @@ public class Robot extends TimedRobot {
       break;
 
     case "tele":
-      upperYBound = -7;
-      lowerYBound = -9;
+      upperYBound = -7.5;
+      lowerYBound = -8.5;
       break;
     }
 
     if (camx > targetRatio * 1.5) {
-      left.set((camx * camx + 1) / (2 * camx * camx + 16));
-      right.set(0);
-      System.out.println("Left set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
-          + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
+      if(moveBack){
+        left.set((camx * camx + 1) / (2 * camx * camx + 16));
+        //right.set(0);
+      } else {
+        //left.set(0);
+        right.set((camx * camx + 1) / (2 * camx * camx + 16));
+      }
+      //System.out.println("Left set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
+      //    + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
       // System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
       aligned = false;
       // System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
     } else if (camx < targetRatio * -1.5) {
-      left.set(0);
+        if(moveBack){
+      //left.set(0);
       right.set(-(camx * camx + 1) / (2 * camx * camx + 16));
-      System.out.println("Right set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
-          + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
+        } else {
+          left.set(-(camx * camx + 1) / (2 * camx * camx + 16));
+        //  right.set(0);
+        }
+      //System.out.println("Right set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
+      //    + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
       // System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
       aligned = false;
       // System.out.println("Should be turning left ("+camx+")");
