@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Relay.*;
+import edu.wpi.first.wpilibj.DigitInput;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -47,10 +49,12 @@ public class Robot extends TimedRobot {
   VictorSP rearLeft = new VictorSP(4);
   VictorSP rearRight = new VictorSP(3);
   // VictorSP solo = new VictorSP(5);
-  // VictorSP tagAxle = new VictorSP(5); TAG AXLE MOTOR
+  PWMVictorSPX lift1 = new PWMVictorSPX(0);
+  PWMVictorSPX lift2 = new PMWVictorSPX(1);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
+  SpeedControllerGroup lift = new SpeedControllerGroup(lift1, lift2);
 
   DifferentialDrive buffet = new DifferentialDrive(left, right);
 
@@ -125,10 +129,6 @@ public class Robot extends TimedRobot {
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
-    /*
-     * if (joy.getRawButton(1)) { tagAxle.set(.25); } else if (joy.getRawButton(2))
-     * { tagAxle.set(-.25); TAG AXLE } else { tagAxle.set(0); }
-     */
 
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
