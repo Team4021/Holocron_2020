@@ -81,6 +81,9 @@ public class Robot extends TimedRobot {
   DigitalInput inUp = new DigitalInput(1);
   DigitalInput liftUp = new DigitalInput(2);
   DigitalInput liftDown = new DigitalInput(3);
+  DigitalInput b1 = new DigitalInput(4);
+  DigitalInput b2 = new DigitalInput(5);
+  DigitalInput b3 = new DigitalInput(6);
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -158,6 +161,14 @@ public class Robot extends TimedRobot {
       lift.set(0);
     }
 
+    // Moves belt automatically
+    if (b1.get() == true && b3.get() == false) {
+      belt.set(Value.kForward);
+    } else if (b2.get() == true && b1.get() == false) {
+      belt.set(Value.kOff);
+    }
+
+
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
@@ -192,6 +203,7 @@ public class Robot extends TimedRobot {
       aligned = false;
       distanced = false;
       // solo.set(0);
+      // belt.set(Value.kOff);
     }
   }
 
@@ -266,6 +278,7 @@ public class Robot extends TimedRobot {
     if (distanced == true && aligned == true) {
       System.out.println("we got through the shooting boiz");
       // solo.set(1);
+      // belt.set(Value.kforward);
       aligned = false;
       distanced = false;
     }
