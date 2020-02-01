@@ -45,16 +45,17 @@ public class Robot extends TimedRobot {
 
   Joystick joy = new Joystick(0);
 
-  VictorSP frontLeft = new VictorSP(8);
-  VictorSP frontRight = new VictorSP(2);
-  VictorSP rearLeft = new VictorSP(4);
-  VictorSP rearRight = new VictorSP(3);
-  // VictorSP solo = new VictorSP(5);
-  PWMVictorSPX lift1 = new PWMVictorSPX(0);
-  PWMVictorSPX lift2 = new PWMVictorSPX(1);
+  PWMVictorSPX frontLeft = new PWMVictorSPX(2);
+  PWMVictorSPX frontRight = new PWMVictorSPX(0);
+  PWMVictorSPX rearLeft = new PWMVictorSPX(3);
+  PWMVictorSPX rearRight = new PWMVictorSPX(1);
+  VictorSP solo = new VictorSP(5);
+  VictorSP lift1 = new VictorSP(4);
+  VictorSP lift2 = new VictorSP(6);
+  VictorSP intake = new VictorSP(7);
 
   Relay belt = new Relay(0);
-  Relay intake = new Relay(1);
+  Relay intakeFlip = new Relay(1);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -141,11 +142,11 @@ public class Robot extends TimedRobot {
 
     // Moves intake up and down
     if (inDown.get() == false && joy.getRawButton(1)) {
-      intake.set(Value.kForward);
+      intakeFlip.set(Value.kForward);
     } else if (inUp.get() == false && joy.getRawButton(2)) {
-      intake.set(Value.kReverse);
+      intakeFlip.set(Value.kReverse);
     } else {
-      intake.set(Value.kOff);
+      intakeFlip.set(Value.kOff);
     }
 
     // Moves lift up and down
