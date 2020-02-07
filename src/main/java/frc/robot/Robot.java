@@ -45,13 +45,13 @@ public class Robot extends TimedRobot {
 
   Joystick joy = new Joystick(0);
 
-  VictorSP frontLeft = new VictorSP(8);
-  VictorSP frontRight = new VictorSP(2);
-  VictorSP rearLeft = new VictorSP(4);
-  VictorSP rearRight = new VictorSP(3);
-  // VictorSP solo = new VictorSP(5);
-  PWMVictorSPX lift1 = new PWMVictorSPX(0);
-  PWMVictorSPX lift2 = new PWMVictorSPX(1);
+  PWMVictorSPX frontLeft = new PWMVictorSPX(0);
+  PWMVictorSPX frontRight = new PWMVictorSPX(2);
+  PWMVictorSPX rearLeft = new PWMVictorSPX(1);
+  PWMVictorSPX rearRight = new PWMVictorSPX(3);
+  VictorSP solo = new VictorSP(5);
+  VictorSP lift1 = new VictorSP(0);
+  VictorSP lift2 = new VictorSP(1);
 
   Relay belt = new Relay(0);
   Relay intake = new Relay(1);
@@ -161,10 +161,12 @@ public class Robot extends TimedRobot {
     }
 
     // Moves belt automatically
-    if (b1.get() == true && b3.get() == false) {
-      belt.set(Value.kForward);
-    } else if (b2.get() == true && b1.get() == false) {
+    if (b3.get() == true && joy.getRawButton(6) == false) {
       belt.set(Value.kOff);
+    } else if (b2.get() == true && b1.get() == false && joy.getRawButton(6) == false) {
+      belt.set(Value.kOff);
+    } else if (joy.getRawButton(6) == false) {
+      belt.set(Value.kForward);
     }
 
 
@@ -276,8 +278,8 @@ public class Robot extends TimedRobot {
 
     if (distanced == true && aligned == true) {
       System.out.println("we got through the shooting boiz");
-      // solo.set(1);
-      // belt.set(Value.kforward);
+      solo.set(1);
+      belt.set(Value.kForward);
       aligned = false;
       distanced = false;
     }
