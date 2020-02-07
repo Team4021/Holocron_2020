@@ -47,8 +47,7 @@ public class Robot extends TimedRobot {
   VictorSP rearLeft = new VictorSP(4);
   VictorSP rearRight = new VictorSP(3);
   // VictorSP solo = new VictorSP(5);
-  // VictorSP tagAxle = new VictorSP(5); TAG AXLE MOTOR
-
+  
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
 
@@ -127,11 +126,7 @@ public class Robot extends TimedRobot {
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
-    /*
-     * if (joy.getRawButton(1)) { tagAxle.set(.25); } else if (joy.getRawButton(2))
-     * { tagAxle.set(-.25); TAG AXLE } else { tagAxle.set(0); }
-     */
-
+   
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
