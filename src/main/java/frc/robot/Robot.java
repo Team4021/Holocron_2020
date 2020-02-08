@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
 
   boolean aligned;
   boolean distanced;
+  boolean intakeRun;
 
   DigitalInput inDown = new DigitalInput(0);
   DigitalInput inUp = new DigitalInput(1);
@@ -144,29 +145,41 @@ public class Robot extends TimedRobot {
     buffet.arcadeDrive(-pizza, taco);
 
     // Moves intake up and down
-    if (inDown.get() == false && joy.getRawButton(1)) {
+    if (inDown.get() == false && joy.getRawAxis(3) > .1) {
       intakeFlip.set(Value.kForward);
-    } else if (inUp.get() == false && joy.getRawButton(2)) {
+    } else if (inUp.get() == false && joy.getRawAxis(2) < -.1) {
       intakeFlip.set(Value.kReverse);
     } else {
       intakeFlip.set(Value.kOff);
     }
 
+    // Hopefully creates a toggle for intake motors
+    if (joy.getRawButtonPressed(1)) {
+      intakeRun = !intakeRun;
+    }
+
+    // Runs the intake motors
+    if (intakeRun == true) {
+      intake.set(.25);
+    } else {
+      intake.set(0);
+    }
+
     // Moves lift up and down
-    if (liftDown.get() == false && joy.getRawButton(3)) {
+    if (liftDown.get() == false && joy.getRawButton(6)) {
       lift.set(1);
-    } else if (liftUp.get() == false && joy.getRawButton(4)) {
+    } else if (liftUp.get() == false && joy.getRawButton(5)) {
       lift.set(-1);
     } else {
       lift.set(0);
     }
 
     // Moves belt automatically
-    if (b3.get() == true && joy.getRawButton(6) == false) {
+    if (b3.get() == true && joy.getRawButton(4) == false) {
       belt.set(Value.kOff);
-    } else if (b2.get() == true && b1.get() == false && joy.getRawButton(6) == false) {
+    } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
       belt.set(Value.kOff);
-    } else if (joy.getRawButton(6) == false) {
+    } else if (joy.getRawButton(4) == false) {
       belt.set(Value.kForward);
     }
 
@@ -199,7 +212,7 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("Angle width", degreeWidth);
 
-    if (joy.getRawButton(6) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
+    if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
       autoShoot("tele");
     } else {
       aligned = false;
