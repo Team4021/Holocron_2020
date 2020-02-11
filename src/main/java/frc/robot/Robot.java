@@ -44,18 +44,18 @@ public class Robot extends TimedRobot {
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
-
-  PWMVictorSPX frontLeft = new PWMVictorSPX(2);
-  PWMVictorSPX frontRight = new PWMVictorSPX(0);
-  PWMVictorSPX rearLeft = new PWMVictorSPX(3);
-  PWMVictorSPX rearRight = new PWMVictorSPX(1);
-  VictorSP solo = new VictorSP(5);
+  Joystick testJoy = new Joystick(1);
+  PWMVictorSPX frontLeft = new PWMVictorSPX(9);
+  PWMVictorSPX frontRight = new PWMVictorSPX(7);
+  PWMVictorSPX rearLeft = new PWMVictorSPX(8);
+  PWMVictorSPX rearRight = new PWMVictorSPX(6);
+  VictorSP solo = new VictorSP(2);
   VictorSP lift1 = new VictorSP(4);
-  VictorSP lift2 = new VictorSP(6);
-  VictorSP intake = new VictorSP(7);
+  VictorSP lift2 = new VictorSP(5);
+  VictorSP intake = new VictorSP(3);
 
-  Relay belt = new Relay(0);
-  Relay intakeFlip = new Relay(1);
+  Relay belt = new Relay(1);
+  Relay intakeFlip = new Relay(0);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -107,6 +107,20 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    if (testJoy.getRawButton(1) == true) {
+      intake.set(.75);
+    } else if (testJoy.getRawButton(2) == true) {
+      intake.set(-.75);
+    } else {
+      intake.set(0);
+    }
+    if (testJoy.getRawButton(3)== true) {
+      intakeFlip.set(Value.kForward);
+    } else if(testJoy.getRawButton(4)== true) {
+      intakeFlip.set(Value.kReverse);
+    } else {
+      intakeFlip.set(Value.kOff);
+    }
   }
 
   /**
@@ -159,11 +173,11 @@ public class Robot extends TimedRobot {
     }
 
     // Runs the intake motors
-    if (intakeRun == true) {
+    /*if (intakeRun == true) {
       intake.set(.25);
     } else {
       intake.set(0);
-    }
+    }*/
 
     // Moves lift up and down
     if (liftDown.get() == false && joy.getRawButton(6)) {
