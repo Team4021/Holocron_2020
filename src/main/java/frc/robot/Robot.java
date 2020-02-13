@@ -77,6 +77,7 @@ public class Robot extends TimedRobot {
   boolean aligned;
   boolean distanced;
   boolean intakeRun;
+  boolean shootRun=false;
 
   DigitalInput inDown = new DigitalInput(0);
   DigitalInput inUp = new DigitalInput(1);
@@ -107,7 +108,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    if (joy.getRawButton(1) == true) {
+
+    /* if (joy.getRawButton(1) == true) {
       intake.set(.75);
     } else if (joy.getRawButton(2) == true) {
       intake.set(-.75);
@@ -120,7 +122,7 @@ public class Robot extends TimedRobot {
       intakeFlip.set(Value.kReverse);
     } else {
       intakeFlip.set(Value.kOff);
-    }
+    } */
   }
 
   /**
@@ -146,7 +148,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     // insert delay (duration determined by selecter on ShuffleBoard)
-    //testingMotors autoShoot("auto");
+     autoShoot("auto");
   }
 
   /**
@@ -159,46 +161,58 @@ public class Robot extends TimedRobot {
     buffet.arcadeDrive(-pizza, taco);
 
     // Moves intake up and down
-  //testingMotors  if (inDown.get() == false && joy.getRawAxis(3) > .1) {
-  //testingMotors    intakeFlip.set(Value.kForward);
-  //testingMotors  } else if (inUp.get() == false && joy.getRawAxis(2) < -.1) {
-  //testingMotors    intakeFlip.set(Value.kReverse);
-  //testingMotors  } else {
-  //testingMotors    intakeFlip.set(Value.kOff);
-  //testingMotors  }
+    if ( /* inDown.get() == false && */ joy.getRawAxis(3) > .1) {
+      intakeFlip.set(Value.kForward);
+    } else if (/*inUp.get() == false &&*/ joy.getRawAxis(2) > .1) {
+      intakeFlip.set(Value.kReverse);
+    } else {
+      intakeFlip.set(Value.kOff);
+    }
 
     // Hopefully creates a toggle for intake motors
-  //testingMotors  if (joy.getRawButtonPressed(1)) {
-  //testingMotors    intakeRun = !intakeRun;
-  //testingMotors  }
+    if (joy.getRawButtonPressed(1)) {
+      intakeRun = !intakeRun;
+    }
 
     // Runs the intake motors
-    /*if (intakeRun == true) {
-      intake.set(.25);
+    if (intakeRun == true) {
+      intake.set(-1);
     } else {
       intake.set(0);
-    }*/
+    }
 
     // Moves lift up and down
-    if (liftDown.get() == false && joy.getRawButton(6)) {
+    if (/* liftDown.get() == false && */ joy.getRawButton(6)) {
       lift.set(1);
-    } else if (liftUp.get() == false && joy.getRawButton(5)) {
+    } else if (/*liftUp.get() == false && */ joy.getRawButton(5)) {
       lift.set(-1);
     } else {
       lift.set(0);
     }
+    if (joy.getRawButtonPressed(3)) {
+      shootRun = !shootRun;
+    }
 
+    // Runs the intake motors
+    if (shootRun== true) {
+      solo.set(-.85);
+    } else {
+      solo.set(0);
+    }
     // Moves belt automatically
-    //testingMotors if (b3.get() == true && joy.getRawButton(4) == false) {
-    //testingMotors   belt.set(Value.kOff);
-    //testingMotors } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
-    //testingMotors   belt.set(Value.kOff);
-    //testingMotors } else if (joy.getRawButton(4) == false) {
-    //testingMotors   belt.set(Value.kForward);
-    //testingMotors }
-
-    if(joy.getTrigger()) {
+    /*
+     if (b3.get() == true && joy.getRawButton(4) == false) {
+       belt.set(Value.kOff);
+     } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
+       belt.set(Value.kOff);
+     } else if (joy.getRawButton(4) == false) {
+       belt.set(Value.kForward);
+     }
+*/
+    if(joy.getRawButton(7)) {
       belt.set(Value.kForward);
+    } else if(joy.getRawButton(8)) {
+      belt.set(Value.kReverse);
     } else {
       belt.set(Value.kOff);
     }
@@ -234,15 +248,15 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("Angle width", degreeWidth);
 
-    //testingMotors if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
-    //testingMotors  autoShoot("tele");
-    //testingMotors} else {
-    //testingMotors  aligned = false;
-    //testingMotors  distanced = false;
-    //testingMotors  // solo.set(0);
-    //testingMotors  // belt.set(Value.kOff);
-    //testingMotors}
-  //testingMotors
+     if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
+      autoShoot("tele");
+    } else {
+      aligned = false;
+      distanced = false;
+      // solo.set(0);
+      // belt.set(Value.kOff);
+    }
+  
 } // teleopperiodic
 
   /**
@@ -266,13 +280,13 @@ public class Robot extends TimedRobot {
       break;
 
     case "tele":
-      upperYBound = -7;
-      lowerYBound = -9;
+      upperYBound = 1;
+      lowerYBound = -1;
       break;
     }
 
     if (camx > targetRatio * 1.5) {
-      left.set((camx * camx + 1) / (2 * camx * camx + 16));
+      left.set((camx * camx + 1) / (4 * camx * camx + 16));
       right.set(0);
       System.out.println("Left set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
           + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
@@ -282,7 +296,7 @@ public class Robot extends TimedRobot {
       // On left, twist right
     } else if (camx < targetRatio * -1.5) {
       left.set(0);
-      right.set(-(camx * camx + 1) / (2 * camx * camx + 16));
+      right.set(-(camx * camx + 1) / (4 * camx * camx + 16));
       System.out.println("Right set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
           + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
       // System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
@@ -300,12 +314,12 @@ public class Robot extends TimedRobot {
     // Moves to correct distance from reflective tape
 
     if (camy > upperYBound && aligned == true) {
-      left.set(-(camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
-      right.set((camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
+      left.set(-(camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
+      right.set((camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
       distanced = false;
     } else if (camy < lowerYBound && aligned == true) {
-      left.set((camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
-      right.set(-(camy * camy + 16 * camy + 65) / (1.5 * (camy * camy + 16 * camy + 72)));
+      left.set((camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
+      right.set(-(camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
       distanced = false;
     } else if (camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
@@ -315,8 +329,8 @@ public class Robot extends TimedRobot {
 
     if (distanced == true && aligned == true) {
       System.out.println("we got through the shooting boiz");
-      solo.set(1);
-      belt.set(Value.kForward);
+      solo.set(-.8);
+      belt.set(Value.kReverse);
       aligned = false;
       distanced = false;
     }
