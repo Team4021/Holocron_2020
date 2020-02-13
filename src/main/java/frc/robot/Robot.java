@@ -87,6 +87,8 @@ public class Robot extends TimedRobot {
   DigitalInput b2 = new DigitalInput(5);
   DigitalInput b3 = new DigitalInput(6);
 
+  int beltDelay;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -108,21 +110,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
-    /* if (joy.getRawButton(1) == true) {
-      intake.set(.75);
-    } else if (joy.getRawButton(2) == true) {
-      intake.set(-.75);
-    } else {
-      intake.set(0);
-    }
-    if (joy.getRawButton(3)== true) {
-      intakeFlip.set(Value.kForward);
-    } else if(joy.getRawButton(4)== true) {
-      intakeFlip.set(Value.kReverse);
-    } else {
-      intakeFlip.set(Value.kOff);
-    } */
   }
 
   /**
@@ -195,7 +182,7 @@ public class Robot extends TimedRobot {
 
     // Runs the intake motors
     if (shootRun== true) {
-      solo.set(-.85);
+      solo.set(-.95);
     } else {
       solo.set(0);
     }
@@ -234,7 +221,7 @@ public class Robot extends TimedRobot {
     // farther away, it will have more leeway
     System.out.println("The target is " + targetWidth + " pixels wide, " + degreeWidth + " degrees.");
 
-    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     SmartDashboard.putNumber("Vision", tv);
     SmartDashboard.putNumber("LimelightX", camx);
     SmartDashboard.putNumber("LimelightY", camy);
@@ -248,7 +235,7 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("Angle width", degreeWidth);
 
-     if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
+    if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
       autoShoot("tele");
     } else {
       aligned = false;
@@ -256,8 +243,8 @@ public class Robot extends TimedRobot {
       // solo.set(0);
       // belt.set(Value.kOff);
     }
-  
-} // teleopperiodic
+
+  } // teleopperiodic
 
   /**
    * This function is called periodically during test mode.
@@ -266,7 +253,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-  public void autoShoot(String mode) {
+  public void autoShoot(final String mode) {
     double upperYBound = 0; // just initializing, they'll never be 0
     double lowerYBound = 0;// just initializing, they'll never be 0
     // Auto-Aligns to the reflective tape
@@ -285,7 +272,7 @@ public class Robot extends TimedRobot {
       break;
     }
 
-    if (camx > targetRatio * 1.5) {
+    if (camx > targetRatio) {
       left.set((camx * camx + 1) / (4 * camx * camx + 16));
       right.set(0);
       System.out.println("Left set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
@@ -294,7 +281,7 @@ public class Robot extends TimedRobot {
       aligned = false;
       // System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (camx < targetRatio * -1.5) {
+    } else if (camx < targetRatio * -1) {
       left.set(0);
       right.set(-(camx * camx + 1) / (4 * camx * camx + 16));
       System.out.println("Right set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
@@ -303,7 +290,7 @@ public class Robot extends TimedRobot {
       aligned = false;
       // System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (camx > targetRatio * -1.5 && camx < targetRatio * 1.5) {
+    } else if (camx > targetRatio * -1 && camx < targetRatio * 1) {
       aligned = true;
       // System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
@@ -314,12 +301,12 @@ public class Robot extends TimedRobot {
     // Moves to correct distance from reflective tape
 
     if (camy > upperYBound && aligned == true) {
-      left.set(-(camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
-      right.set((camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
+      left.set(-(camy * camy + 1) / (4 * camy * camy + 32));
+      right.set((camy * camy + 1) / (4 * camy * camy + 32));
       distanced = false;
     } else if (camy < lowerYBound && aligned == true) {
-      left.set((camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
-      right.set(-(camy * camy + 16 * camy + 65) / (4 * (camy * camy + 16 * camy + 72)));
+      left.set((camy * camy + 1) / (4*camy * camy + 32));
+      right.set(-(camy * camy + 1) / (4*camy * camy + 32));
       distanced = false;
     } else if (camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
@@ -328,11 +315,18 @@ public class Robot extends TimedRobot {
     // Shooting der ball m8
 
     if (distanced == true && aligned == true) {
+
       System.out.println("we got through the shooting boiz");
       solo.set(-.8);
-      belt.set(Value.kReverse);
+      ++beltDelay;
+      System.out.println("beltDelay is " + beltDelay);
+      if(beltDelay >= 75)
+        belt.set(Value.kReverse);
+      
       aligned = false;
       distanced = false;
+    } else {
+      beltDelay = beltDelay<=0?0:beltDelay - 5;
     }
   }
 }
