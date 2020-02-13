@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
-  Joystick testJoy = new Joystick(1);
+  // Joystick testJoy = new Joystick(1);
   PWMVictorSPX frontLeft = new PWMVictorSPX(9);
   PWMVictorSPX frontRight = new PWMVictorSPX(7);
   PWMVictorSPX rearLeft = new PWMVictorSPX(8);
@@ -107,16 +107,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    if (testJoy.getRawButton(1) == true) {
+    if (joy.getRawButton(1) == true) {
       intake.set(.75);
-    } else if (testJoy.getRawButton(2) == true) {
+    } else if (joy.getRawButton(2) == true) {
       intake.set(-.75);
     } else {
       intake.set(0);
     }
-    if (testJoy.getRawButton(3)== true) {
+    if (joy.getRawButton(3)== true) {
       intakeFlip.set(Value.kForward);
-    } else if(testJoy.getRawButton(4)== true) {
+    } else if(joy.getRawButton(4)== true) {
       intakeFlip.set(Value.kReverse);
     } else {
       intakeFlip.set(Value.kOff);
@@ -146,7 +146,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     // insert delay (duration determined by selecter on ShuffleBoard)
-    autoShoot("auto");
+    //testingMotors autoShoot("auto");
   }
 
   /**
@@ -159,18 +159,18 @@ public class Robot extends TimedRobot {
     buffet.arcadeDrive(-pizza, taco);
 
     // Moves intake up and down
-    if (inDown.get() == false && joy.getRawAxis(3) > .1) {
-      intakeFlip.set(Value.kForward);
-    } else if (inUp.get() == false && joy.getRawAxis(2) < -.1) {
-      intakeFlip.set(Value.kReverse);
-    } else {
-      intakeFlip.set(Value.kOff);
-    }
+  //testingMotors  if (inDown.get() == false && joy.getRawAxis(3) > .1) {
+  //testingMotors    intakeFlip.set(Value.kForward);
+  //testingMotors  } else if (inUp.get() == false && joy.getRawAxis(2) < -.1) {
+  //testingMotors    intakeFlip.set(Value.kReverse);
+  //testingMotors  } else {
+  //testingMotors    intakeFlip.set(Value.kOff);
+  //testingMotors  }
 
     // Hopefully creates a toggle for intake motors
-    if (joy.getRawButtonPressed(1)) {
-      intakeRun = !intakeRun;
-    }
+  //testingMotors  if (joy.getRawButtonPressed(1)) {
+  //testingMotors    intakeRun = !intakeRun;
+  //testingMotors  }
 
     // Runs the intake motors
     /*if (intakeRun == true) {
@@ -189,13 +189,21 @@ public class Robot extends TimedRobot {
     }
 
     // Moves belt automatically
-    if (b3.get() == true && joy.getRawButton(4) == false) {
-      belt.set(Value.kOff);
-    } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
-      belt.set(Value.kOff);
-    } else if (joy.getRawButton(4) == false) {
+    //testingMotors if (b3.get() == true && joy.getRawButton(4) == false) {
+    //testingMotors   belt.set(Value.kOff);
+    //testingMotors } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
+    //testingMotors   belt.set(Value.kOff);
+    //testingMotors } else if (joy.getRawButton(4) == false) {
+    //testingMotors   belt.set(Value.kForward);
+    //testingMotors }
+
+    if(joy.getTrigger()) {
       belt.set(Value.kForward);
+    } else {
+      belt.set(Value.kOff);
     }
+
+
 
 
     camx = tx.getDouble(0.0);
@@ -226,15 +234,16 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("Angle width", degreeWidth);
 
-    if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
-      autoShoot("tele");
-    } else {
-      aligned = false;
-      distanced = false;
-      // solo.set(0);
-      // belt.set(Value.kOff);
-    }
-  }
+    //testingMotors if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
+    //testingMotors  autoShoot("tele");
+    //testingMotors} else {
+    //testingMotors  aligned = false;
+    //testingMotors  distanced = false;
+    //testingMotors  // solo.set(0);
+    //testingMotors  // belt.set(Value.kOff);
+    //testingMotors}
+  //testingMotors
+} // teleopperiodic
 
   /**
    * This function is called periodically during test mode.
