@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -89,6 +90,8 @@ public class Robot extends TimedRobot {
 
   int beltDelay;
 
+  double autonomousDelay; // delay in seconds, changed each match based on other teams
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -134,7 +137,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    autonomousDelay = SmartDashboard.getNumber("Autonomous Delay", 0);
     // insert delay (duration determined by selecter on ShuffleBoard)
+    Timer.delay(autonomousDelay);
      autoShoot("auto");
   }
 
