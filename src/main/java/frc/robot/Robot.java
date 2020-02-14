@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.GyroBase;
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
@@ -30,8 +28,7 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private final String helloThere = "Hello there";
-  AnalogGyro gyro = new AnalogGyro(0);
-  double tilt;
+
 
   /**
    * This function is run when the robot is first started up and should be
@@ -55,8 +52,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    tilt = Math.round(gyro.getAngle());
-    SmartDashboard.putNumber("Tilt", (int)tilt);
   }
 
   /**
