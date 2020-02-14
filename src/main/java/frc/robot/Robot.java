@@ -182,7 +182,7 @@ public class Robot extends TimedRobot {
 
     // Runs the intake motors
     if (shootRun== true) {
-      solo.set(-.95);
+      solo.set(-1 );
     } else {
       solo.set(0);
     }
