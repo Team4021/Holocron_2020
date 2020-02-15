@@ -4,8 +4,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -33,8 +31,6 @@ public class Robot extends TimedRobot {
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
-
-  UsbCamera cam1;
   
   PWMVictorSPX frontLeft = new PWMVictorSPX(9);
   PWMVictorSPX frontRight = new PWMVictorSPX(7);
@@ -88,7 +84,6 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     //Does the most important part of our code
     SmartDashboard.putString("General Kenobi", "Hello there");
-    CameraServer.getInstance().startAutomaticCapture(1);
   }
 
   @Override
