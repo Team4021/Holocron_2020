@@ -73,13 +73,13 @@ public class Robot extends TimedRobot {
   boolean slorpMode = false;
   boolean firstTimeThru = true;
 
-  DigitalInput inDown = new DigitalInput(0);
-  DigitalInput inUp = new DigitalInput(1);
-  DigitalInput liftUp = new DigitalInput(2);
+  DigitalInput inDown = new DigitalInput(6);
+  DigitalInput inUp = new DigitalInput(5);
+  DigitalInput liftUp = new DigitalInput(4);
   DigitalInput liftDown = new DigitalInput(3);
-  DigitalInput b1 = new DigitalInput(4);
-  DigitalInput b2 = new DigitalInput(5);
-  DigitalInput b3 = new DigitalInput(6);
+  DigitalInput b1 = new DigitalInput(0);
+  DigitalInput b2 = new DigitalInput(1);
+  DigitalInput b3 = new DigitalInput(2);
 
   int beltDelay;
   double autoDelay;
@@ -93,6 +93,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    SmartDashboard.putBoolean("inDown", inDown.get());
+    SmartDashboard.putBoolean("inUp", inUp.get());
+    SmartDashboard.putBoolean("liftUp", liftUp.get());
+    SmartDashboard.putBoolean("liftDown", liftDown.get());
+    SmartDashboard.putBoolean("b1", b1.get());
+    SmartDashboard.putBoolean("b2", b2.get());
+    SmartDashboard.putBoolean("b3", b3.get());
   }
 
   @Override
@@ -119,9 +126,9 @@ public class Robot extends TimedRobot {
     buffet.arcadeDrive(-pizza, taco);
 
     // Moves intake up and down
-    if ( /* inDown.get() == false && */ joy.getRawAxis(3) > .1) {
+    if (inUp.get() == false && joy.getRawAxis(3) > .1) {
       intakeFlip.set(Value.kForward);
-    } else if (/*inUp.get() == false &&*/ joy.getRawAxis(2) > .1) {
+    } else if (inDown.get() == false && joy.getRawAxis(2) > .1) {
       intakeFlip.set(Value.kReverse);
     } else {
       intakeFlip.set(Value.kOff);
@@ -142,9 +149,9 @@ public class Robot extends TimedRobot {
     }
 
     // Moves lift up and down
-    if (/* liftDown.get() == false && */ joy.getRawButton(6)) {
+    if (liftUp.get() == false && joy.getRawButton(6)) {
       lift.set(1);
-    } else if (/*liftUp.get() == false && */ joy.getRawButton(5)) {
+    } else if (liftDown.get() == false && joy.getRawButton(5)) {
       lift.set(-1);
     } else {
       lift.set(0);
@@ -168,7 +175,7 @@ public class Robot extends TimedRobot {
       } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
         belt.set(Value.kOff);
       } else if (joy.getRawButton(4) == false) {
-        belt.set(Value.kForward);
+        belt.set(Value.kReverse);
       }
     }
     camx = tx.getDouble(0.0);
@@ -186,6 +193,7 @@ public class Robot extends TimedRobot {
     System.out.println("The target is " + targetWidth + " pixels wide, " + degreeWidth + " degrees.");
 
     final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+
     SmartDashboard.putNumber("Vision", tv);
     SmartDashboard.putNumber("LimelightX", camx);
     SmartDashboard.putNumber("LimelightY", camy);
@@ -201,6 +209,7 @@ public class Robot extends TimedRobot {
     if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
       autoShoot("tele");
     } else {
+      solo.set(0);
       aligned = false;
       distanced = false;
     }
