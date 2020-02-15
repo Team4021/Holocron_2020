@@ -60,6 +60,7 @@ public class Robot extends TimedRobot {
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
   SpeedControllerGroup lift = new SpeedControllerGroup(lift1, lift2);
+  SpeedControllerGroup yes = new SpeedControllerGroup(frontLeft, frontRight, rearLeft, rearRight);
 
   DifferentialDrive buffet = new DifferentialDrive(left, right);
 
@@ -186,6 +187,10 @@ public class Robot extends TimedRobot {
     } else {
       solo.set(0);
     }
+
+    if (joy.getRawButton(2)) {
+      belt.set(Value.kForward);
+    }
     // Moves belt automatically
     /*
      if (b3.get() == true && joy.getRawButton(4) == false) {
@@ -240,8 +245,6 @@ public class Robot extends TimedRobot {
     } else {
       aligned = false;
       distanced = false;
-      // solo.set(0);
-      // belt.set(Value.kOff);
     }
 
   } // teleopperiodic
@@ -272,25 +275,23 @@ public class Robot extends TimedRobot {
       break;
     }
 
-    if (camx > targetRatio) {
-      left.set((camx * camx + 1) / (4 * camx * camx + 16));
-      right.set(0);
-      System.out.println("Left set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
-          + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
-      // System.out.println("Setting motors to "+(camx*camx+1)/(3*camx*camx+16));
+    if (camx > targetRatio * 3) {
+      if (camy < 0) {
+        left.set((Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
+      } else {
+        right.set((Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
+      }
       aligned = false;
-      // System.out.println("Should be turning right ("+camx+")");
       // On left, twist right
-    } else if (camx < targetRatio * -1) {
-      left.set(0);
-      right.set(-(camx * camx + 1) / (4 * camx * camx + 16));
-      System.out.println("Right set to " + targetRatioInverse + " * " + (camx * camx + 1) / (2 * camx * camx + 16)
-          + " = " + targetRatioInverse * (camx * camx + 1) / (2 * camx * camx + 16));
-      // System.out.println("Setting motors to "+(-(camx*camx+1)/(3*camx*camx+16)));
+    } else if (camx < targetRatio * -3) {
+      if (camy < 0) {
+        right.set(-(Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
+      } else {
+        left.set(-(Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
+      }
       aligned = false;
-      // System.out.println("Should be turning left ("+camx+")");
       // On right, twist left
-    } else if (camx > targetRatio * -1 && camx < targetRatio * 1) {
+    } else if (camx > targetRatio * -3 && camx < targetRatio * 3) {
       aligned = true;
       // System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
@@ -301,12 +302,12 @@ public class Robot extends TimedRobot {
     // Moves to correct distance from reflective tape
 
     if (camy > upperYBound && aligned == true) {
-      left.set(-(camy * camy + 1) / (4 * camy * camy + 32));
-      right.set((camy * camy + 1) / (4 * camy * camy + 32));
+      left.set(-(camy * camy + 1) / (1 * camy * camy + 8));
+      right.set((camy * camy + 1) / (1 * camy * camy + 8));
       distanced = false;
     } else if (camy < lowerYBound && aligned == true) {
-      left.set((camy * camy + 1) / (4*camy * camy + 32));
-      right.set(-(camy * camy + 1) / (4*camy * camy + 32));
+      left.set((camy * camy + 1) / (1 * camy * camy + 8));
+      right.set(-(camy * camy + 1) / (1 * camy * camy + 8));
       distanced = false;
     } else if (camy < upperYBound && camy > lowerYBound && aligned == true) {
       distanced = true;
@@ -320,7 +321,7 @@ public class Robot extends TimedRobot {
       solo.set(-.8);
       ++beltDelay;
       System.out.println("beltDelay is " + beltDelay);
-      if(beltDelay >= 75)
+      if(beltDelay >= 60)
         belt.set(Value.kReverse);
       
       aligned = false;
