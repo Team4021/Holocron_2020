@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -32,6 +34,8 @@ public class Robot extends TimedRobot {
 
   Joystick joy = new Joystick(0);
 
+  UsbCamera cam1;
+  
   PWMVictorSPX frontLeft = new PWMVictorSPX(9);
   PWMVictorSPX frontRight = new PWMVictorSPX(7);
   PWMVictorSPX rearLeft = new PWMVictorSPX(8);
@@ -84,6 +88,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     //Does the most important part of our code
     SmartDashboard.putString("General Kenobi", "Hello there");
+    CameraServer.getInstance().startAutomaticCapture(1);
   }
 
   @Override
@@ -98,8 +103,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     autoDelay = SmartDashboard.getNumber("Auto Delay", 0);
-    if(firstTimeThru)
+    if(firstTimeThru) {
      Timer.delay(autoDelay);
+    }
     firstTimeThru = false;
     
     // insert delay (duration determined by selecter on ShuffleBoard)
