@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
   boolean aligned;
   boolean distanced;
   boolean intakeRun;
-  boolean shootRun=false;
+  boolean slorpMode = false;
 
   DigitalInput inDown = new DigitalInput(0);
   DigitalInput inUp = new DigitalInput(1);
@@ -178,40 +178,27 @@ public class Robot extends TimedRobot {
       lift.set(0);
     }
     if (joy.getRawButtonPressed(3)) {
-      shootRun = !shootRun;
+      slorpMode = !slorpMode;
     }
 
     // Runs the intake motors
-    if (shootRun== true) {
-      solo.set(-1 );
+    if (slorpMode== true) {
+      if(joy.getRawButton(7)) {
+        belt.set(Value.kForward);
+      } else if(joy.getRawButton(8)) {
+        belt.set(Value.kReverse);
+      } else {
+        belt.set(Value.kOff);
+      }  
     } else {
-      solo.set(0);
+      if (b3.get() == true && joy.getRawButton(4) == false) {
+        belt.set(Value.kOff);
+      } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
+        belt.set(Value.kOff);
+      } else if (joy.getRawButton(4) == false) {
+        belt.set(Value.kForward);
+      }
     }
-
-    if (joy.getRawButton(2)) {
-      belt.set(Value.kForward);
-    }
-    // Moves belt automatically
-    /*
-     if (b3.get() == true && joy.getRawButton(4) == false) {
-       belt.set(Value.kOff);
-     } else if (b2.get() == true && b1.get() == false && joy.getRawButton(4) == false) {
-       belt.set(Value.kOff);
-     } else if (joy.getRawButton(4) == false) {
-       belt.set(Value.kForward);
-     }
-*/
-    if(joy.getRawButton(7)) {
-      belt.set(Value.kForward);
-    } else if(joy.getRawButton(8)) {
-      belt.set(Value.kReverse);
-    } else {
-      belt.set(Value.kOff);
-    }
-
-
-
-
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
@@ -265,8 +252,8 @@ public class Robot extends TimedRobot {
 
     switch (mode) {
     case "auto":
-      upperYBound = -7;
-      lowerYBound = -9;
+      upperYBound = 1;
+      lowerYBound = -1;
       break;
 
     case "tele":
@@ -278,22 +265,25 @@ public class Robot extends TimedRobot {
     if (camx > targetRatio * 3) {
       if (camy < 0) {
         left.set((Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
+        right.set(.1);
       } else {
+        left.set(.1);
         right.set((Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
       }
       aligned = false;
       // On left, twist right
     } else if (camx < targetRatio * -3) {
       if (camy < 0) {
+        left.set(-.1);
         right.set(-(Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
       } else {
         left.set(-(Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
+        right.set(-.1);
       }
       aligned = false;
       // On right, twist left
     } else if (camx > targetRatio * -3 && camx < targetRatio * 3) {
       aligned = true;
-      // System.out.println("Should be staying put because the x value is "+camx);
       // We be aligned
     } else {
       System.out.println("I am the print line... that doesn't do anything. Camx is " + camx);
