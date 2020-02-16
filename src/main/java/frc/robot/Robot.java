@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
   boolean aligned;
   boolean distanced;
   boolean intakeRun;
-  boolean slorpMode = false;
+  boolean shootRun = false;
   boolean firstTimeThru = true;
 
   DigitalInput inDown = new DigitalInput(6);
@@ -109,20 +109,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     if (inDown.get() == false) {
       intakeFlip.set(Value.kReverse);
+    } else if(tv==1) {
+      intakeFlip.set(Value.kOff);
+      autoShoot("auto");
     } else {
       intakeFlip.set(Value.kOff);
     }
-    
-    // insert delay (duration determined by selecter on ShuffleBoard)
-     if(autoShoot("auto")) {
-       belt.set(Value.kReverse);
-     } else {
-       belt.set(Value.kOff);
-     }
-      
   }
+    // insert delay (duration determined by selecter on ShuffleBoard)
+    
 
   @Override
   public void teleopPeriodic() {
@@ -163,9 +161,13 @@ public class Robot extends TimedRobot {
       lift.set(0);
     }
     if (joy.getRawButtonPressed(3)) {
-      slorpMode = !slorpMode;
+      shootRun = !shootRun;
     }
-
+    if (shootRun == true) {
+      solo.set(-.8);
+    } else {
+      solo.set(0);
+    }
     // Runs the intake motors
   //  if (slorpMode== true) {
       if(joy.getRawButton(7)) {
@@ -173,13 +175,8 @@ public class Robot extends TimedRobot {
       } else if(joy.getRawButton(8)) {
         belt.set(Value.kReverse);
       } else if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
-        if(autoShoot("tele")) {
-          belt.set(Value.kReverse);
-        } else {
-          belt.set(Value.kOff);
-        }
+        autoShoot("tele");
       } else {
-        solo.set(0);
         aligned = false;
         distanced = false;
         belt.set(Value.kOff);
@@ -195,18 +192,6 @@ public class Robot extends TimedRobot {
         belt.set(Value.kReverse);
       }
     }*/
-
-    if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
-      if(autoShoot("tele")) {
-        belt.set(Value.kReverse);
-      } else {
-        belt.set(Value.kOff);
-      }
-    } else {
-      solo.set(0);
-      aligned = false;
-      distanced = false;
-    }
 
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
@@ -238,7 +223,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-  public boolean autoShoot(final String mode) {
+  public void autoShoot(final String mode) {
     System.out.println("IN AUTOSHOOT");
     double upperYBound = 0; // just initializing, they'll never be 0
     double lowerYBound = 0;// just initializing, they'll never be 0
@@ -248,17 +233,17 @@ public class Robot extends TimedRobot {
 
     switch (mode) {
     case "auto":
-      upperYBound = -3;
-      lowerYBound = -5;
+      upperYBound = -8;
+      lowerYBound = -10;
       break;
 
     case "tele":
-      upperYBound = -3;
-      lowerYBound = -5;
+      upperYBound = -8;
+      lowerYBound = -10;
       break;
     }
 
-    if (camx > targetRatio * 1) {
+    if (camx > /*targetRatio * */-3) {
       if (camy < 0) {
         left.set((Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
         right.set(.1);
@@ -268,7 +253,7 @@ public class Robot extends TimedRobot {
       }
       aligned = false;
       // On left, twist right
-    } else if (camx < targetRatio * -5) {
+    } else if (camx </* targetRatio * */-5) {
       if (camy < 0) {
         left.set(-.1);
         right.set(-(Math.pow(20,1/targetRatio)-1) * (camx*camx + 1) / ((2 * camx * camx + 16)*(Math.pow(20,1/targetRatio))+1));
@@ -278,7 +263,7 @@ public class Robot extends TimedRobot {
       }
       aligned = false;
       // On right, twist left
-    } else if (camx > targetRatio * -3 && camx < targetRatio * 3) {
+    } else if (camx >/* targetRatio * */-5 && camx < /*targetRatio * */-3) {
       aligned = true;
       // We be aligned
     } else {
@@ -310,12 +295,14 @@ public class Robot extends TimedRobot {
       if(beltDelay >= 60) {
         aligned = false;
         distanced = false;
-        return true;
+        belt.set(Value.kReverse);
+       // return true;
       }
     } else { 
       beltDelay = beltDelay<=0?0:beltDelay - 5;
-      return false;
+      belt.set(Value.kOff);
+    //  return false;
     }
-    return false;
+  //  return false;
   }
 }
