@@ -157,7 +157,7 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
       shootRun = !shootRun;
     }
     if (shootRun == true) {
-      solo.set(-.8);
+      solo.set(-.85);
     } else {
       solo.set(0);
     }
@@ -213,7 +213,7 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
   }
 
   public void autoShoot() {
-    soloPew = ((distance() / 225) * distance());
+    soloPew = ((vertAngle / 975) * vertAngle);
     // Auto-Aligns to the reflective tape
     aligned = false;
 
@@ -236,9 +236,9 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
       System.out.println("I am the print line... that doesn't do anything. Camx is " + camx);
     }
 
-    if (soloPew >= .75) {
+    if (aligned == true && soloPew >= .75) {
       solo.set(soloPew);
-    } else if (soloPew < .75) {
+    } else if (aligned == true && soloPew < .75) {
       solo.set(.75);
     } else {
       solo.set(0);
@@ -261,6 +261,6 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
     // a1 = degree of camera from horizontal to ground
     // a2 = degree of camera to target ////// use tvert variable
 
-    return ((27-98.25) / Math.tan(35 + vertAngle));
+    return ((22-98.25) / Math.tan(30 + vertAngle));
   }
 }
