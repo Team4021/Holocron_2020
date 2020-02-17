@@ -217,19 +217,19 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
     // Auto-Aligns to the reflective tape
     aligned = false;
 
-    if (camx > -3) {
+    if (camx > 1) {
       left.set((Math.pow(20, 1 / targetRatio) - 1) * (camx * camx + 1)
           / ((2 * camx * camx + 16) * (Math.pow(20, 1 / targetRatio)) + 1));
       right.set(0);
       aligned = false;
       // On left, twist right
-    } else if (camx < -5) {
+    } else if (camx < -1) {
       left.set(0);
       right.set(-(Math.pow(20, 1 / targetRatio) - 1) * (camx * camx + 1)
           / ((2 * camx * camx + 16) * (Math.pow(20, 1 / targetRatio)) + 1));
       aligned = false;
       // On right, twist left
-    } else if (camx > -5 && camx < -3) {
+    } else if (camx > -1 && camx < 1) {
       aligned = true;
       // We be aligned
     } else {
