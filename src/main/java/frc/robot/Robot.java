@@ -267,8 +267,9 @@ SmartDashboard.putNumber("PID", rcw);
   }
 
   public void PID() {
+    P =.05;
     error = setpoint - camx;
-    I += (error*.2);
+    I = (error*.02);
     rcw = P*error + I;
   }
 }
