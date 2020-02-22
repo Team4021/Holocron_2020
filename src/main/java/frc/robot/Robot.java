@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,7 +14,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Relay.*;
-import edu.wpi.first.wpilibj.command.PIDCommand;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
@@ -85,7 +83,7 @@ public class Robot extends TimedRobot {
 
   int beltDelay;
 
-  int P = 1, I = 0, D = 1;
+  double P = 1, I = 0, D = 1;
   double error, setpoint = 0, rcw;
 
 
@@ -101,6 +99,8 @@ public class Robot extends TimedRobot {
 SmartDashboard.putNumber("distance", distance());
 SmartDashboard.putNumber("Solo Speed", soloPew);
 SmartDashboard.putNumber("Vert Angle", vertAngle);
+SmartDashboard.putNumber("PID", rcw);
+
   }
 
   @Override
@@ -221,13 +221,14 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
     soloPew = ((vertAngle / 975) * vertAngle);
     // Auto-Aligns to the reflective tape
     aligned = false;
+    PID();
 
     if (camx > 1) {
-      buffet.arcadeDrive(0, rcw);
+      buffet.arcadeDrive(0, -rcw);
       aligned = false;
       // On left, twist right
     } else if (camx < -1) {
-      buffet.arcadeDrive(0, rcw);
+      buffet.arcadeDrive(0, -rcw);
       aligned = false;
       // On right, twist left
     } else if (camx > -1 && camx < 1) {
@@ -237,7 +238,7 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
       System.out.println("I am the print line... that doesn't do anything. Camx is " + camx);
     }
 
-    if (aligned == true && soloPew >= .75) {
+    /*if (aligned == true && soloPew >= .75) {
       solo.set(soloPew);
     } else if (aligned == true && soloPew < .75) {
       solo.set(.75);
@@ -252,7 +253,7 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
       ++beltDelay;
     } else {
       belt.set(Value.kOff);
-    }
+    } */
   }
 
   public double distance() {
@@ -267,6 +268,7 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
 
   public void PID() {
     error = setpoint - camx;
-    rcw = P*error + I + D;
+    I += (error*.2);
+    rcw = P*error + I;
   }
 }
