@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Relay.*;
+import edu.wpi.first.wpilibj.command.PIDCommand;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
@@ -83,6 +84,10 @@ public class Robot extends TimedRobot {
   DigitalInput b3 = new DigitalInput(2);
 
   int beltDelay;
+
+  int P = 1, I = 0, D = 1;
+  double error, setpoint = 0, rcw;
+
 
   @Override
   public void robotInit() {
@@ -218,15 +223,11 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
     aligned = false;
 
     if (camx > 1) {
-      left.set((Math.pow(20, 1 / targetRatio) - 1) * (camx * camx + 1)
-          / ((2 * camx * camx + 16) * (Math.pow(20, 1 / targetRatio)) + 1));
-      right.set(0);
+      buffet.arcadeDrive(0, rcw);
       aligned = false;
       // On left, twist right
     } else if (camx < -1) {
-      left.set(0);
-      right.set(-(Math.pow(20, 1 / targetRatio) - 1) * (camx * camx + 1)
-          / ((2 * camx * camx + 16) * (Math.pow(20, 1 / targetRatio)) + 1));
+      buffet.arcadeDrive(0, rcw);
       aligned = false;
       // On right, twist left
     } else if (camx > -1 && camx < 1) {
@@ -262,5 +263,10 @@ SmartDashboard.putNumber("Vert Angle", vertAngle);
     // a2 = degree of camera to target ////// use tvert variable
 
     return ((22-98.25) / Math.tan(30 + vertAngle));
+  }
+
+  public void PID() {
+    error = setpoint - camx;
+    rcw = P*error + I + D;
   }
 }
