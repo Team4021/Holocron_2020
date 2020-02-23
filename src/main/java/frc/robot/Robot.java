@@ -83,8 +83,10 @@ public class Robot extends TimedRobot {
 
   int beltDelay;
 
-  double P = 1, I = 0, D = 1;
-  double error, setpoint = 0, rcw;
+  double P = 1, I = 0, D = 1; // alignment
+  double error, setpoint = 0, piAlign; // alignement
+  double pDistance = 1, iDistance = 0, dDistance = 1; // distance shooter
+  double errorDistance, setDistance = -8, piDistance; // distance shooter
 
 
   @Override
@@ -99,7 +101,7 @@ public class Robot extends TimedRobot {
 SmartDashboard.putNumber("distance", distance());
 SmartDashboard.putNumber("Solo Speed", soloPew);
 SmartDashboard.putNumber("Vert Angle", vertAngle);
-SmartDashboard.putNumber("PID", rcw);
+SmartDashboard.putNumber("PID", piAlign);
 
   }
 
@@ -221,10 +223,10 @@ SmartDashboard.putNumber("PID", rcw);
     soloPew = ((vertAngle / 975) * vertAngle);
     // Auto-Aligns to the reflective tape
     aligned = false;
-    PID();
+    PIDa();
 
     if (camx > 1 || camx < -1) {
-      buffet.arcadeDrive(0, -rcw);
+      buffet.arcadeDrive(0, -piAlign);
       aligned = false;
     } else if (camx > -1 && camx < 1) {
       aligned = true;
@@ -252,19 +254,25 @@ SmartDashboard.putNumber("PID", rcw);
   }
 
   public double distance() {
-    //d = (h2-h1) / tan(a1+a2)
-    // h2 = height of camera
-    // h1 = height of target from ground
-    // a1 = degree of camera from horizontal to ground
-    // a2 = degree of camera to target ////// use tvert variable
+    /* d = (h2-h1) / tan(a1+a2)
+   h2 = height of camera
+   h1 = height of target from ground
+   a1 = degree of camera from horizontal to ground
+   a2 = degree of camera to target ////// use tvert variable */
 
     return ((22-98.25) / Math.tan(30 + vertAngle));
   }
 
-  public void PID() {
+  public void PIDa() {
     P =.05;
     error = setpoint - camx;
     I = (error*.02);
-    rcw = P*error + I;
+    piAlign = P*error + I;
+  }
+  public void PIDs() { 
+    pDistance = .308;
+    errorDistance = setDistance - camy;
+    iDistance = (errorDistance*.02);
+    piDistance = piDistance*errorDistance + iDistance;
   }
 }
