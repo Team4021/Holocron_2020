@@ -223,14 +223,9 @@ SmartDashboard.putNumber("PID", rcw);
     aligned = false;
     PID();
 
-    if (camx > 1) {
+    if (camx > 1 || camx < -1) {
       buffet.arcadeDrive(0, -rcw);
       aligned = false;
-      // On left, twist right
-    } else if (camx < -1) {
-      buffet.arcadeDrive(0, -rcw);
-      aligned = false;
-      // On right, twist left
     } else if (camx > -1 && camx < 1) {
       aligned = true;
       // We be aligned
