@@ -85,8 +85,8 @@ public class Robot extends TimedRobot {
 
   double P = 1, I = 0, D = 1; // alignment
   double error, setpoint = 0, piAlign; // alignement
-  double pDistance = 1, iDistance = 0, dDistance = 1; // distance shooter
-  double errorDistance, setDistance = -8, piDistance; // distance shooter
+  double pShooter = 1, iShooter = 0, dShooter = 1; // distance shooter
+  double errorShooter, setShooter = -8, piShooter; // distance shooter
 
 
   @Override
@@ -102,7 +102,7 @@ SmartDashboard.putNumber("distance", distance());
 SmartDashboard.putNumber("Solo Speed", soloPew);
 SmartDashboard.putNumber("Vert Angle", vertAngle);
 SmartDashboard.putNumber("PIAlignment", piAlign);
-SmartDashboard.putNumber("PIShooter", piDistance);
+SmartDashboard.putNumber("PIShooter", piShooter);
   }
 
   @Override
@@ -224,6 +224,7 @@ SmartDashboard.putNumber("PIShooter", piDistance);
     // Auto-Aligns to the reflective tape
     aligned = false;
     PIDa();
+    PIDs();
 
     if (camx > 1 || camx < -1) {
       buffet.arcadeDrive(0, -piAlign);
@@ -235,9 +236,9 @@ SmartDashboard.putNumber("PIShooter", piDistance);
       System.out.println("I am the print line... that doesn't do anything. Camx is " + camx);
     }
 
-    /*if (aligned == true && soloPew >= .75) {
-      solo.set(soloPew);
-    } else if (aligned == true && soloPew < .75) {
+    /*if (aligned == true && piShooter >= .75) {
+      solo.set(pShooter);
+    } else if (aligned == true && piShooter < .75) {
       solo.set(.75);
     } else {
       solo.set(0);
@@ -270,9 +271,9 @@ SmartDashboard.putNumber("PIShooter", piDistance);
     piAlign = P*error + I;
   }
   public void PIDs() { 
-    pDistance = .001;
-    errorDistance = setDistance - camy;
-    iDistance = (errorDistance*.02);
-    piDistance = pDistance*errorDistance + iDistance;
+    pShooter = .001;
+    errorShooter = setShooter - camy;
+    iShooter = (errorShooter*.02);
+    piShooter = pShooter*errorShooter + iShooter;
   }
 }
