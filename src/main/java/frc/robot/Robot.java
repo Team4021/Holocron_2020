@@ -130,43 +130,16 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
 		
-		lift();
+    lift();
 
     intakeFlip();
 		
-		intakeRun();
+    intakeRun();
 
-
-    if (joy.getRawButtonPressed(3)) {
-      shootRun = !shootRun;
-    }
-    if (shootRun == true) {
-      solo.set(-.85);
-    } else {
-      solo.set(0);
-    }
-    // Runs the intake motors
-    // if (slorpMode== true) {
-    if (joy.getRawButton(7)) {
-      belt.set(Value.kForward);
-    } else if (joy.getRawButton(8)) {
-      belt.set(Value.kReverse);
-    } else if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
-      autoShoot();
-    } else {
-      aligned = false;
-      belt.set(Value.kOff);
-      beltDelay = 0;
-    } /*
-       * else { belt.set(Value.kOff); }
-       */
-    /*
-     * } else { if (b3.get() == true && joy.getRawButton(4) == false) {
-     * belt.set(Value.kOff); } else if (b2.get() == true && b1.get() == false &&
-     * joy.getRawButton(4) == false) { belt.set(Value.kOff); } else if
-     * (joy.getRawButton(4) == false) { belt.set(Value.kReverse); } }
-     */
-
+    manShooter();
+    
+    belt();
+	  
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
@@ -231,7 +204,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
      lift.set(0);
    }
  }
-	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 	public void intakeFlip() {
 	// Moves intake up and down
    if (inUp.get() == false && joy.getRawAxis(3) > .1) {
@@ -257,7 +230,42 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     } else {
       intake.set(0);
     }
+}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+	public void manShooter() {
+	if (joy.getRawButtonPressed(3)) {
+      shootRun = !shootRun;
+    }
+    if (shootRun == true) {
+      solo.set(-.85);
+    } else {
+      solo.set(0);
+    }
 	}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public void belt() {
+  // Runs the intake motors
+    if (joy.getRawButton(7)) {
+      belt.set(Value.kForward);
+    } else if (joy.getRawButton(8)) {
+      belt.set(Value.kReverse);
+    } else if (joy.getRawButton(4) == true && tv == 1) {// Moves us into auto-shooting if button is pressed
+      autoShoot();
+    } else {
+      aligned = false;
+      belt.set(Value.kOff);
+      beltDelay = 0;
+    } /*
+       * else { belt.set(Value.kOff); }
+       */
+    /*
+     * } else { if (b3.get() == true && joy.getRawButton(4) == false) {
+     * belt.set(Value.kOff); } else if (b2.get() == true && b1.get() == false &&
+     * joy.getRawButton(4) == false) { belt.set(Value.kOff); } else if
+     * (joy.getRawButton(4) == false) { belt.set(Value.kReverse); } }
+     */
+
+  }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double distance() {
     /* d = (h2-h1) / tan(a1+a2)
