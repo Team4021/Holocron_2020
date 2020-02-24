@@ -274,7 +274,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
    a1 = degree of camera from horizontal to ground
    a2 = degree of camera to target ////// use tvert variable */
 
-    return ((22-98.25) / Math.tan(30 + vertAngle));
+    return ((98.25-22) / Math.tan(30 + vertAngle));
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDa() {
