@@ -101,8 +101,8 @@ public class Robot extends TimedRobot {
 SmartDashboard.putNumber("distance", distance());
 SmartDashboard.putNumber("Solo Speed", soloPew);
 SmartDashboard.putNumber("Vert Angle", vertAngle);
-SmartDashboard.putNumber("PID", piAlign);
-
+SmartDashboard.putNumber("PIAlignment", piAlign);
+SmartDashboard.putNumber("PIShooter", piDistance);
   }
 
   @Override
@@ -270,9 +270,9 @@ SmartDashboard.putNumber("PID", piAlign);
     piAlign = P*error + I;
   }
   public void PIDs() { 
-    pDistance = .308;
+    pDistance = .001;
     errorDistance = setDistance - camy;
     iDistance = (errorDistance*.02);
-    piDistance = piDistance*errorDistance + iDistance;
+    piDistance = pDistance*errorDistance + iDistance;
   }
 }
