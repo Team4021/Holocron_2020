@@ -122,44 +122,21 @@ SmartDashboard.putNumber("PIShooter", piShooter);
       intakeFlip.set(Value.kOff);
     }
   }
+	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
   public void teleopPeriodic() {
     final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
+		
+		lift();
 
-    // Moves intake up and down
-    if (inUp.get() == false && joy.getRawAxis(3) > .1) {
-      intakeFlip.set(Value.kForward);
-    } else if (inDown.get() == false && joy.getRawAxis(2) > .1) {
-      intakeFlip.set(Value.kReverse);
-    } else {
-      intakeFlip.set(Value.kOff);
-    }
+    intakeFlip();
+		
+		intakeRun();
 
-    // Hopefully creates a toggle for intake motors
-    if (joy.getRawButtonPressed(1)) {
-      intakeRun = !intakeRun;
-    }
 
-    // Runs the intake motors
-    if (intakeRun == true) {
-      intake.set(-1);
-    } else if (joy.getRawButton(2)) {
-      intake.set(1);
-    } else {
-      intake.set(0);
-    }
-
-    // Moves lift up and down
-    if (liftUp.get() == false && joy.getRawButton(6)) {
-      lift.set(1);
-    } else if (liftDown.get() == false && joy.getRawButton(5)) {
-      lift.set(-1);
-    } else {
-      lift.set(0);
-    }
     if (joy.getRawButtonPressed(3)) {
       shootRun = !shootRun;
     }
@@ -195,16 +172,6 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     camarea = ta.getDouble(0.0);
     vertAngle = tvert.getDouble(0);
     targetWidth = thor.getDouble(0);
-    degreeWidth = targetWidth * 0.16875;// degrees per pixel
-    targetRatio = 10 / degreeWidth; // ratio of width of desired target to width of target (13 ft away and
-    // perpendicular)
-    // if the robot is closer, then it should move more (and if farther away, it
-    // should move less)
-    // up close, degreeWidth will be greater than 1.0602..., and so the robot will
-    // try to be more accurate
-    // farther away, it will have more leeway
-    // System.out.println("The target is " + targetWidth + " pixels wide, " +
-    // degreeWidth + " degrees.");
 
     SmartDashboard.putNumber("Vision", tv);
     SmartDashboard.putNumber("LimelightX", camx);
@@ -214,11 +181,11 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     SmartDashboard.putBoolean("Aligned", aligned);
     SmartDashboard.putNumber("Angle width", degreeWidth);
   } // teleopperiodic
-
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
   public void testPeriodic() {
   }
-
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void autoShoot() {
     soloPew = ((vertAngle / 975) * vertAngle);
     // Auto-Aligns to the reflective tape
@@ -227,18 +194,18 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     PIDs();
 
     if (camx > 1 || camx < -1) {
-      buffet.arcadeDrive(0, -piAlign);
+      buffet.arcadeDrive(0, -PIDa);
       aligned = false;
     } else if (camx > -1 && camx < 1) {
       aligned = true;
       // We be aligned
     } else {
-      System.out.println("I am the print line... that doesn't do anything. Camx is " + camx);
+      System.out.println("This ain't it chief");
     }
 
-    /*if (aligned == true && piShooter >= .75) {
-      solo.set(pShooter);
-    } else if (aligned == true && piShooter < .75) {
+    /*if (aligned == true && PIDs >= .75) { // Still not sure about this whole system, only 12 degress of play in motor
+      solo.set(PIDs);
+    } else if (aligned == true && PIDs < .75) {
       solo.set(.75);
     } else {
       solo.set(0);
@@ -253,7 +220,45 @@ SmartDashboard.putNumber("PIShooter", piShooter);
       belt.set(Value.kOff);
     } */
   }
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public void lift() {
+							  // Moves lift up and down
+   if (liftUp.get() == false && joy.getRawButton(6)) {
+     lift.set(1);
+   } else if (liftDown.get() == false && joy.getRawButton(5)) {
+     lift.set(-1);
+   } else {
+     lift.set(0);
+   }
+ }
+	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+	public void intakeFlip() {
+	// Moves intake up and down
+   if (inUp.get() == false && joy.getRawAxis(3) > .1) {
+     intakeFlip.set(Value.kForward);
+   } else if (inDown.get() == false && joy.getRawAxis(2) > .1) {
+     intakeFlip.set(Value.kReverse);
+   } else {
+     intakeFlip.set(Value.kOff);
+  }
+}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+	public void intakeRun() {
+	 // Creates a toggle for intake motors
+    if (joy.getRawButtonPressed(1)) {
+      intakeRun = !intakeRun;
+    }
 
+    // Runs the intake motors
+    if (intakeRun == true) {
+      intake.set(-1);
+    } else if (joy.getRawButton(2)) {
+      intake.set(1);
+    } else {
+      intake.set(0);
+    }
+	}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double distance() {
     /* d = (h2-h1) / tan(a1+a2)
    h2 = height of camera
@@ -263,17 +268,18 @@ SmartDashboard.putNumber("PIShooter", piShooter);
 
     return ((22-98.25) / Math.tan(30 + vertAngle));
   }
-
-  public void PIDa() {
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public double PIDa() {
     P =.05;
     error = setpoint - camx;
     I = (error*.02);
-    piAlign = P*error + I;
+    return PIDa = P*error + I;
   }
-  public void PIDs() { 
-    pShooter = .001;
-    errorShooter = setShooter - camy;
+	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public double PIDs() { 
+    pShooter = .001; // We're coming
+    errorShooter = setShooter - vertAngle;
     iShooter = (errorShooter*.02);
-    piShooter = pShooter*errorShooter + iShooter;
+    return PIDs = pShooter*errorShooter + iShooter;
   }
 }
