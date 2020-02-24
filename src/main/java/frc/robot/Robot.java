@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
 
   int beltDelay;
 
-  double P = 1, I = 0, D = 1; // alignment
+  double P = 1; // alignment
   double error, setpoint = 0, piAlign; // alignement
   double pShooter = 1, iShooter = 0, dShooter = 1; // distance shooter
   double errorShooter, setShooter = -8, piShooter; // distance shooter
@@ -166,32 +166,34 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     PIDa();
     PIDs();
 
-    if (camx > 1 || camx < -1) {
-      buffet.arcadeDrive(0, -PIDa);
+    if (camx > .75) {
+      right.set(0);
+      left.set(Math.abs(piAlign));
       aligned = false;
-    } else if (camx > -1 && camx < 1) {
+    } else if (camx < -.75) {
+      right.set(-piAlign);
+      left.set(0);
+    } else if (camx > -.75 && camx < .75) {
       aligned = true;
       // We be aligned
     } else {
       System.out.println("This ain't it chief");
     }
 
-    /*if (aligned == true && PIDs >= .75) { // Still not sure about this whole system, only 12 degress of play in motor
-      solo.set(PIDs);
-    } else if (aligned == true && PIDs < .75) {
-      solo.set(.75);
+    if (aligned == true) { // Still not sure about this whole system, only 12 degress of play in motor
+      solo.set(-PIDs());
     } else {
       solo.set(0);
-    }
+    } // MIN DISTANCE IS 6.8//////
 
-    if (aligned == true && beltDelay >= 60) {
+    if (aligned == true && beltDelay >= 75) {
       belt.set(Value.kReverse);
-    } else if (aligned == true && beltDelay < 60) {
+    } else if (aligned == true && beltDelay < 75) {
       belt.set(Value.kOff);
       ++beltDelay;
     } else {
       belt.set(Value.kOff);
-    } */
+    } 
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void lift() {
@@ -244,6 +246,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
 	}
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void belt() {
+    final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
   // Runs the intake motors
     if (joy.getRawButton(7)) {
       belt.set(Value.kForward);
@@ -278,16 +281,24 @@ SmartDashboard.putNumber("PIShooter", piShooter);
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDa() {
-    P =.05;
+    P =.03;
     error = setpoint - camx;
-    I = (error*.02);
-    return PIDa = P*error + I;
+    if (Math.abs(P*error) < .2) {
+      piAlign = .2;
+    } else {
+      piAlign = P*error;
+    }
+    return piAlign;
   }
 	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDs() { 
-    pShooter = .001; // We're coming
-    errorShooter = setShooter - vertAngle;
-    iShooter = (errorShooter*.02);
-    return PIDs = pShooter*errorShooter + iShooter;
+    pShooter = .035; // We're coming
+    errorShooter = setShooter - Math.abs(camy);
+    if (pShooter*errorShooter > -.75) {
+      piShooter = .75;
+    } else {
+      piShooter = pShooter*errorShooter;
+    }
+    return Math.abs(piShooter);
   }
 }
