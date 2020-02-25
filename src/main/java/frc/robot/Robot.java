@@ -138,6 +138,8 @@ SmartDashboard.putNumber("PIShooter", piShooter);
 
     manShooter();
     
+    distance();
+	  
     belt();
 	  
     camx = tx.getDouble(0.0);
