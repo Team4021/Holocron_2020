@@ -143,7 +143,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     camx = tx.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
-    vertAngle = tvert.getDouble(0);
+    vertAngle = tvert.getDouble(0)*Math.PI/180;
     targetWidth = thor.getDouble(0);
 
     SmartDashboard.putNumber("Vision", tv);
@@ -276,8 +276,10 @@ SmartDashboard.putNumber("PIShooter", piShooter);
    h1 = height of target from ground
    a1 = degree of camera from horizontal to ground
    a2 = degree of camera to target ////// use tvert variable */
-
-    return ((98.25-22) / Math.tan(30 + vertAngle));
+   double camAngle = 30*Math.PI/180;
+   double disRad = 76.25/Math.tan(camAngle + vertAngle)
+	   
+    return (disRad);
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDa() {
