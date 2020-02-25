@@ -292,7 +292,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
   }
 	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDs() { 
-    pShooter = .035; // We're coming
+    pShooter = .037; // We're coming
     errorShooter = setShooter - Math.abs(camy);
     if (pShooter*errorShooter > -.75) {
       piShooter = .75;
