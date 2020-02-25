@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  NetworkTable lemon = NetworkTableInstance.getDefault().getTable("lemon");
   NetworkTableEntry tx = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ty = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ta = table.getEntry("ta"); // area of the object
@@ -26,9 +27,19 @@ public class Robot extends TimedRobot {
   NetworkTableEntry tshort = table.getEntry("tshort"); // length of shortest side
   NetworkTableEntry tvert = table.getEntry("tvert"); // vertical distance
   NetworkTableEntry thor = table.getEntry("thor"); // horizontal distance
-  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different
-                                                         // settings for the camera
+  NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
+
+  NetworkTableEntry tx2 = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ty2 = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ta2 = table.getEntry("ta"); // area of the object
+  NetworkTableEntry tv2 = table.getEntry("tv"); // 1 if have vision 0 if no vision
+  NetworkTableEntry tlong2 = table.getEntry("tlong"); // length of longest side
+  NetworkTableEntry tshort2 = table.getEntry("tshort"); // length of shortest side
+  NetworkTableEntry tvert2 = table.getEntry("tvert"); // vertical distance
+  NetworkTableEntry thor2 = table.getEntry("thor"); // horizontal distance
+  NetworkTableEntry getpipe2 = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
+  NetworkTableEntry ts2 = table.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
 
@@ -58,17 +69,15 @@ public class Robot extends TimedRobot {
   double taco;
 
   double camx;
+  double camx2;
   double camy;
   double camarea;
   double targetWidth;
-  double degreeWidth = 0;
-  double targetRatio;
-  double targetRatioInverse;
-  double targetDistance;
   double vertAngle;
   double soloPew;
 
   boolean aligned;
+  boolean alignedPickup;
   boolean intakeRun;
   boolean shootRun = false;
   boolean firstTimeThru = true;
@@ -83,10 +92,9 @@ public class Robot extends TimedRobot {
 
   int beltDelay;
 
-  double P = 1; // alignment
-  double error, setpoint = 0, piAlign; // alignement
-  double pShooter = 1, iShooter = 0, dShooter = 1; // distance shooter
-  double errorShooter, setShooter = -8, piShooter; // distance shooter
+  double P, error, setpoint = 0, piAlign; // alignment
+  double pShooter, errorShooter, setShooter = -8, piShooter; // distance shooter
+  double pPickup, errorPickup, setpointPickup = 0, piPickup;
 
 
   @Override
@@ -140,6 +148,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     belt();
 	  
     camx = tx.getDouble(0.0);
+    camx2 = tx2.getDouble(0.0);
     camy = ty.getDouble(0.0);
     camarea = ta.getDouble(0.0);
     vertAngle = tvert.getDouble(0)*Math.PI/180;
@@ -151,7 +160,6 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     SmartDashboard.putNumber("LimelightArea", camarea);
     NetworkTableInstance.getDefault();
     SmartDashboard.putBoolean("Aligned", aligned);
-    SmartDashboard.putNumber("Angle width", degreeWidth);
   } // teleopperiodic
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
@@ -193,6 +201,22 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     } else {
       belt.set(Value.kOff);
     } 
+  }
+ /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public void autoPickup() {
+    if (camx2 > .75) {
+      left.set(Math.abs(piAlign));
+      alignedPickup = false;
+    } else if (camx2 < -.75) {
+      right.set(-piAlign);
+    } else if (camx2 > -.75 && camx2 < .75) {
+      alignedPickup = true;
+    }
+    if (alignedPickup == true) {
+      intake.set(-1);
+    } else {
+      intake.set(0);
+    }
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void lift() {
@@ -279,7 +303,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     }
     return piAlign;
   }
-	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDs() { 
     pShooter = .036; // We're coming
     errorShooter = setShooter - Math.abs(camy);
@@ -289,5 +313,16 @@ SmartDashboard.putNumber("PIShooter", piShooter);
       piShooter = pShooter*errorShooter;
     }
     return Math.abs(piShooter);
+  }
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public double PIDap() {
+    pPickup =.03;
+    errorPickup = setpointPickup - camx2;
+    if (Math.abs(P*errorPickup) < .2) {
+      piPickup = .2;
+    } else {
+      piPickup = pPickup*errorPickup;
+    }
+    return piPickup;
   }
 }
