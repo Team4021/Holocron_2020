@@ -98,7 +98,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-SmartDashboard.putNumber("distance", distance());
 SmartDashboard.putNumber("Solo Speed", soloPew);
 SmartDashboard.putNumber("Vert Angle", vertAngle);
 SmartDashboard.putNumber("PIAlignment", piAlign);
@@ -137,9 +136,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     intakeRun();
 
     manShooter();
-    
-    distance();
-	  
+    	  
     belt();
 	  
     camx = tx.getDouble(0.0);
@@ -188,9 +185,9 @@ SmartDashboard.putNumber("PIShooter", piShooter);
       solo.set(0);
     } // MIN DISTANCE IS 6.8//////
 
-    if (aligned == true && beltDelay >= 75) {
+    if (aligned == true && beltDelay >= 90) {
       belt.set(Value.kReverse);
-    } else if (aligned == true && beltDelay < 75) {
+    } else if (aligned == true && beltDelay < 90) {
       belt.set(Value.kOff);
       ++beltDelay;
     } else {
@@ -272,18 +269,6 @@ SmartDashboard.putNumber("PIShooter", piShooter);
 
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public double distance() {
-    /* d = (h2-h1) / tan(a1+a2)
-   h2 = height of camera
-   h1 = height of target from ground
-   a1 = degree of camera from horizontal to ground
-   a2 = degree of camera to target ////// use tvert variable */
-   double camAngle = 30*Math.PI/180;
-   double disRad = 76.25/Math.tan(camAngle + vertAngle)
-	   
-    return (disRad);
-  }
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDa() {
     P =.03;
     error = setpoint - camx;
@@ -296,7 +281,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
   }
 	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDs() { 
-    pShooter = .037; // We're coming
+    pShooter = .036; // We're coming
     errorShooter = setShooter - Math.abs(camy);
     if (pShooter*errorShooter > -.75) {
       piShooter = .75;
