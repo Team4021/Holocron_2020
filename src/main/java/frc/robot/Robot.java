@@ -327,6 +327,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
   }
 	
    public void distance() {
+	   distance = 30*360/targetWidth;
 	// Z = D*f/d
 	  // New distance formula	
    }
