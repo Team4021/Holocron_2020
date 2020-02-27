@@ -52,7 +52,6 @@ public class Robot extends TimedRobot {
   VictorSP intake = new VictorSP(3);
 
   Relay belt = new Relay(1);
-  Relay intakeFlip = new Relay(0);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -141,8 +140,6 @@ public class Robot extends TimedRobot {
     buffet.arcadeDrive(-pizza, taco);
 		
     lift();
-
-    intakeFlip();
 		
     intakeRun();
 
@@ -218,17 +215,6 @@ public class Robot extends TimedRobot {
      lift.set(0);
    }
  }
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-	public void intakeFlip() {
-	// Moves intake up and down
-   if (inUp.get() == false && joy.getRawAxis(3) > .1) {
-     intakeFlip.set(Value.kForward);
-   } else if (inDown.get() == false && joy.getRawAxis(2) > .1) {
-     intakeFlip.set(Value.kReverse);
-   } else {
-     intakeFlip.set(Value.kOff);
-  }
-}
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 	public void intakeRun() {
 	 // Creates a toggle for intake motors
