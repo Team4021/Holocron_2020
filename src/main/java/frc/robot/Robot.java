@@ -325,10 +325,4 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     }
     return piPickup;
   }
-	
-   public void distance() {
-	   distance = 34.64*360/targetWidth;
-	// Z = D*f/d
-	  // New distance formula	
-   }
 }
