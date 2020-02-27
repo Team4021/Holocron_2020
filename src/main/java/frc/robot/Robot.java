@@ -2,8 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -63,8 +61,6 @@ public class Robot extends TimedRobot {
 
   DifferentialDrive buffet = new DifferentialDrive(left, right);
 
-  UsbCamera cam0;
-
   double pizza;
   double taco;
 
@@ -92,16 +88,14 @@ public class Robot extends TimedRobot {
 
   int beltDelay;
 
-  double P, error, setpoint = 0, piAlign; // alignment
-  double pShooter, errorShooter, setShooter = -8, piShooter; // distance shooter
-  double pPickup, errorPickup, setpointPickup = 0, piPickup;
+  double P, error, setpoint = 0, piAlign; // alignment P
+  double pShooter, errorShooter, setShooter = -8, piShooter; // shooter P
+  double pPickup, errorPickup, setpointPickup = 0, piPickup; // intake P
 
 
   @Override
   public void robotInit() {
     // Does the most important part of our code
-    SmartDashboard.putString("General Kenobi", "Hello there");
-    cam0 = CameraServer.getInstance().startAutomaticCapture(0);
   }
 
   @Override
