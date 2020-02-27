@@ -100,10 +100,24 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-SmartDashboard.putNumber("Solo Speed", soloPew);
-SmartDashboard.putNumber("Vert Angle", vertAngle);
-SmartDashboard.putNumber("PIAlignment", piAlign);
-SmartDashboard.putNumber("PIShooter", piShooter);
+    final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    camx = tx.getDouble(0.0);
+    camx2 = tx2.getDouble(0.0);
+    camy = ty.getDouble(0.0);
+    camarea = ta.getDouble(0.0);
+    vertAngle = tvert.getDouble(0);
+    targetWidth = thor.getDouble(0);
+
+  SmartDashboard.putNumber("Vision", tv);
+  SmartDashboard.putNumber("LimelightX", camx);
+  SmartDashboard.putNumber("LimelightY", camy);
+  SmartDashboard.putNumber("LimelightArea", camarea);
+  NetworkTableInstance.getDefault();
+  SmartDashboard.putBoolean("Aligned", aligned);
+  SmartDashboard.putNumber("Solo Speed", soloPew);
+  SmartDashboard.putNumber("Vert Angle", vertAngle);
+  SmartDashboard.putNumber("PIAlignment", piAlign);
+  SmartDashboard.putNumber("PIShooter", piShooter);
   }
 
   @Override
@@ -114,19 +128,14 @@ SmartDashboard.putNumber("PIShooter", piShooter);
   @Override
   public void autonomousPeriodic() {
     final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    if (inDown.get() == false) {
-      intakeFlip.set(Value.kReverse);
-    } else if (tv == 1) {
-      intakeFlip.set(Value.kOff);
+    intake.set(1);
+    if (tv == 1) {
       autoShoot();
-    } else {
-      intakeFlip.set(Value.kOff);
     }
   }
 	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
   public void teleopPeriodic() {
-    final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
@@ -140,20 +149,6 @@ SmartDashboard.putNumber("PIShooter", piShooter);
     manShooter();
     	  
     belt();
-	  
-    camx = tx.getDouble(0.0);
-    camx2 = tx2.getDouble(0.0);
-    camy = ty.getDouble(0.0);
-    camarea = ta.getDouble(0.0);
-    vertAngle = tvert.getDouble(0)*Math.PI/180;
-    targetWidth = thor.getDouble(0);
-
-    SmartDashboard.putNumber("Vision", tv);
-    SmartDashboard.putNumber("LimelightX", camx);
-    SmartDashboard.putNumber("LimelightY", camy);
-    SmartDashboard.putNumber("LimelightArea", camarea);
-    NetworkTableInstance.getDefault();
-    SmartDashboard.putBoolean("Aligned", aligned);
   } // teleopperiodic
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
@@ -185,7 +180,7 @@ SmartDashboard.putNumber("PIShooter", piShooter);
       solo.set(-PIDs());
     } else {
       solo.set(0);
-    } // MIN DISTANCE IS 6.8//////
+    }                     // MIN DISTANCE IS 6.8\\
 
     if (aligned == true && beltDelay >= 90) {
       belt.set(Value.kReverse);
