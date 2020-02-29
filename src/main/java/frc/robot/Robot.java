@@ -69,7 +69,6 @@ public class Robot extends TimedRobot {
   double camarea;
   double targetWidth;
   double vertAngle;
-  double soloPew;
 
   boolean aligned;
   boolean alignedPickup;
@@ -113,7 +112,6 @@ public class Robot extends TimedRobot {
   SmartDashboard.putNumber("LimelightArea", camarea);
   NetworkTableInstance.getDefault();
   SmartDashboard.putBoolean("Aligned", aligned);
-  SmartDashboard.putNumber("Solo Speed", soloPew);
   SmartDashboard.putNumber("Vert Angle", vertAngle);
   SmartDashboard.putNumber("PIAlignment", piAlign);
   SmartDashboard.putNumber("PIShooter", piShooter);
@@ -153,7 +151,6 @@ public class Robot extends TimedRobot {
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void autoShoot() {
-    soloPew = ((vertAngle / 975) * vertAngle);
     // Auto-Aligns to the reflective tape
     aligned = false;
     PIDa();
@@ -224,9 +221,9 @@ public class Robot extends TimedRobot {
 
     // Runs the intake motors
     if (intakeRun == true) {
-      intake.set(-1);
-    } else if (joy.getRawButton(2)) {
       intake.set(1);
+    } else if (joy.getRawButton(2)) {
+      intake.set(-1);
     } else {
       intake.set(0);
     }
@@ -272,7 +269,7 @@ public class Robot extends TimedRobot {
     P =.03;
     error = setpoint - camx;
     if (Math.abs(P*error) < .2) {
-      piAlign = .2;
+      piAlign = .15;
     } else {
       piAlign = P*error;
     }
