@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
@@ -16,7 +17,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-  NetworkTable lemon = NetworkTableInstance.getDefault().getTable("lemon");
+  NetworkTable lemon = NetworkTableInstance.getDefault().getTable("limelight-lemon");
   NetworkTableEntry tx = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ty = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
   NetworkTableEntry ta = table.getEntry("ta"); // area of the object
@@ -52,6 +53,8 @@ public class Robot extends TimedRobot {
   VictorSP intake = new VictorSP(3);
 
   Relay belt = new Relay(1);
+
+  PowerDistributionPanel PDP = new PowerDistributionPanel(0);
 
   SpeedControllerGroup left = new SpeedControllerGroup(frontLeft, rearLeft);
   SpeedControllerGroup right = new SpeedControllerGroup(frontRight, rearRight);
@@ -98,7 +101,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
     camx = tx.getDouble(0.0);
     camx2 = tx2.getDouble(0.0);
     camy = ty.getDouble(0.0);
@@ -106,15 +108,22 @@ public class Robot extends TimedRobot {
     vertAngle = tvert.getDouble(0);
     targetWidth = thor.getDouble(0);
 
-  SmartDashboard.putNumber("Vision", tv);
   SmartDashboard.putNumber("LimelightX", camx);
   SmartDashboard.putNumber("LimelightY", camy);
-  SmartDashboard.putNumber("LimelightArea", camarea);
   NetworkTableInstance.getDefault();
   SmartDashboard.putBoolean("Aligned", aligned);
-  SmartDashboard.putNumber("Vert Angle", vertAngle);
   SmartDashboard.putNumber("PIAlignment", piAlign);
   SmartDashboard.putNumber("PIShooter", piShooter);
+  SmartDashboard.putBoolean(("PickUp Alignment"), alignedPickup);
+  SmartDashboard.putNumber("camx2", camx2);
+
+  PDP.getVoltage();
+  PDP.getTemperature();
+  PDP.getTotalCurrent();
+  PDP.getTotalEnergy();
+  PDP.getTotalPower();
+
+  SmartDashboard.putData(PDP);
   }
 
   @Override
@@ -125,12 +134,14 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    intake.set(1);
-    if (tv == 1) {
+    if (camy > -8 && camy < -10) {
+      buffet.arcadeDrive(.75, 0);
+      intake.set(-.25);
+    } else if (tv == 1) {
       autoShoot();
     }
   }
-	/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+	/*-=-=-=-=-=-= -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
   public void teleopPeriodic() {
     pizza = joy.getRawAxis(1);
@@ -139,7 +150,10 @@ public class Robot extends TimedRobot {
 		
     lift();
 		
-    intakeRun();
+    //intakeRun();
+    if (joy.getRawButton(1) == true) {
+      autoPickup();
+    }
 
     manShooter();
     	  
@@ -156,14 +170,14 @@ public class Robot extends TimedRobot {
     PIDa();
     PIDs();
 
-    if (camx > .75) {
+    if (camx > 1) {
       right.set(0);
       left.set(Math.abs(piAlign));
       aligned = false;
-    } else if (camx < -.75) {
+    } else if (camx < -.50) {
       right.set(-piAlign);
       left.set(0);
-    } else if (camx > -.75 && camx < .75) {
+    } else if (camx > -.50 && camx < 1) {
       aligned = true;
       // We be aligned
     } else {
@@ -188,15 +202,15 @@ public class Robot extends TimedRobot {
  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void autoPickup() {
     if (camx2 > .75) {
-      left.set(Math.abs(piAlign));
+      left.set(Math.abs(PIDap()));
       alignedPickup = false;
     } else if (camx2 < -.75) {
-      right.set(-piAlign);
-    } else if (camx2 > -.75 && camx2 < .75) {
+      right.set(-(Math.abs(PIDap())));
+    } else if (camx2 < -.75 && camx2 > .75) {
       alignedPickup = true;
     }
     if (alignedPickup == true) {
-      intake.set(-1);
+      intake.set(1);
     } else {
       intake.set(0);
     }
@@ -223,7 +237,7 @@ public class Robot extends TimedRobot {
     if (intakeRun == true) {
       intake.set(1);
     } else if (joy.getRawButton(2)) {
-      intake.set(-1);
+      intake.set(-.25);
     } else {
       intake.set(0);
     }
@@ -268,7 +282,7 @@ public class Robot extends TimedRobot {
   public double PIDa() {
     P =.03;
     error = setpoint - camx;
-    if (Math.abs(P*error) < .2) {
+    if (Math.abs(P*error) < .15) {
       piAlign = .15;
     } else {
       piAlign = P*error;
@@ -295,6 +309,6 @@ public class Robot extends TimedRobot {
     } else {
       piPickup = pPickup*errorPickup;
     }
-    return piPickup;
+    return Math.abs(piPickup);
   }
 }
