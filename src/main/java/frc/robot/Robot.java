@@ -147,12 +147,16 @@ public class Robot extends TimedRobot {
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
+    camx2 = tx2.getDouble(0.0);
+
 		
     lift();
 		
     //intakeRun();
     if (joy.getRawButton(1) == true) {
       autoPickup();
+    } else {
+	 intake.set(0);
     }
 
     manShooter();
@@ -201,6 +205,8 @@ public class Robot extends TimedRobot {
   }
  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void autoPickup() {
+    intake.set(-1);
+	  
     if (camx2 > .75) {
       left.set(Math.abs(PIDap()));
       alignedPickup = false;
@@ -208,11 +214,6 @@ public class Robot extends TimedRobot {
       right.set(-(Math.abs(PIDap())));
     } else if (camx2 < -.75 && camx2 > .75) {
       alignedPickup = true;
-    }
-    if (alignedPickup == true) {
-      intake.set(1);
-    } else {
-      intake.set(0);
     }
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
