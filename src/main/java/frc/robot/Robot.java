@@ -29,16 +29,16 @@ public class Robot extends TimedRobot {
   NetworkTableEntry getpipe = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
   NetworkTableEntry ts = table.getEntry("ts"); // skew or rotation of target
 
-  NetworkTableEntry tx2 = table.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
-  NetworkTableEntry ty2 = table.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
-  NetworkTableEntry ta2 = table.getEntry("ta"); // area of the object
-  NetworkTableEntry tv2 = table.getEntry("tv"); // 1 if have vision 0 if no vision
-  NetworkTableEntry tlong2 = table.getEntry("tlong"); // length of longest side
-  NetworkTableEntry tshort2 = table.getEntry("tshort"); // length of shortest side
-  NetworkTableEntry tvert2 = table.getEntry("tvert"); // vertical distance
-  NetworkTableEntry thor2 = table.getEntry("thor"); // horizontal distance
-  NetworkTableEntry getpipe2 = table.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
-  NetworkTableEntry ts2 = table.getEntry("ts"); // skew or rotation of target
+  NetworkTableEntry tx2 = lemon.getEntry("tx"); // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ty2 = lemon.getEntry("ty"); // angle on x-axis from the crosshairs on the object to origin
+  NetworkTableEntry ta2 = lemon.getEntry("ta"); // area of the object
+  NetworkTableEntry tv2 = lemon.getEntry("tv"); // 1 if have vision 0 if no vision
+  NetworkTableEntry tlong2 = lemon.getEntry("tlong"); // length of longest side
+  NetworkTableEntry tshort2 = lemon.getEntry("tshort"); // length of shortest side
+  NetworkTableEntry tvert2 = lemon.getEntry("tvert"); // vertical distance
+  NetworkTableEntry thor2 = lemon.getEntry("thor"); // horizontal distance
+  NetworkTableEntry getpipe2 = lemon.getEntry("getpipe"); // this tells us what "pipeline" we are on, basically different settings for the camera
+  NetworkTableEntry ts2 = lemon.getEntry("ts"); // skew or rotation of target
 
   Joystick joy = new Joystick(0);
 
@@ -112,7 +112,6 @@ public class Robot extends TimedRobot {
   SmartDashboard.putNumber("LimelightY", camy);
   NetworkTableInstance.getDefault();
   SmartDashboard.putBoolean("Aligned", aligned);
-  SmartDashboard.putNumber("PIAlignment", piAlign);
   SmartDashboard.putNumber("PIShooter", piShooter);
   SmartDashboard.putBoolean(("PickUp Alignment"), alignedPickup);
   SmartDashboard.putNumber("camx2", camx2);
@@ -144,11 +143,10 @@ public class Robot extends TimedRobot {
 	/*-=-=-=-=-=-= -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
   public void teleopPeriodic() {
+    camx2 = tx2.getDouble(0.0);
     pizza = joy.getRawAxis(1);
     taco = joy.getRawAxis(4);
     buffet.arcadeDrive(-pizza, taco);
-    camx2 = tx2.getDouble(0.0);
-
 		
     lift();
 		
@@ -156,7 +154,7 @@ public class Robot extends TimedRobot {
     if (joy.getRawButton(1) == true) {
       autoPickup();
     } else {
-	 intake.set(0);
+      intake.set(0);
     }
 
     manShooter();
@@ -205,8 +203,9 @@ public class Robot extends TimedRobot {
   }
  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void autoPickup() {
+
     intake.set(-1);
-	  
+
     if (camx2 > .75) {
       left.set(Math.abs(PIDap()));
       alignedPickup = false;
