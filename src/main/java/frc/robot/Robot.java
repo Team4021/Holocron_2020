@@ -150,12 +150,14 @@ public class Robot extends TimedRobot {
 		
     lift();
 		
-    //intakeRun();
-    if (joy.getRawButton(1) == true) {
+    intakeRun();
+    /*(if (joy.getRawButton(1) == true) {
       autoPickup();
+    } else if (joy.getRawButton(2)){
+      intake.set(-.3);
     } else {
       intake.set(0);
-    }
+    } */
 
     manShooter();
     	  
@@ -172,14 +174,14 @@ public class Robot extends TimedRobot {
     PIDa();
     PIDs();
 
-    if (camx > 1) {
+    if (camx > 2) {
       right.set(0);
       left.set(Math.abs(piAlign));
       aligned = false;
-    } else if (camx < -.50) {
+    } else if (camx < .5) {
       right.set(-piAlign);
       left.set(0);
-    } else if (camx > -.50 && camx < 1) {
+    } else if (camx > .5 && camx < 2) {
       aligned = true;
       // We be aligned
     } else {
@@ -192,9 +194,9 @@ public class Robot extends TimedRobot {
       solo.set(0);
     }                     // MIN DISTANCE IS 6.8\\
 
-    if (aligned == true && beltDelay >= 90) {
+    if (aligned == true && beltDelay >= 100) {
       belt.set(Value.kReverse);
-    } else if (aligned == true && beltDelay < 90) {
+    } else if (aligned == true && beltDelay < 100) {
       belt.set(Value.kOff);
       ++beltDelay;
     } else {
@@ -204,7 +206,7 @@ public class Robot extends TimedRobot {
  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void autoPickup() {
 
-    intake.set(-1);
+    intake.set(1);
 
     if (camx2 > .75) {
       left.set(Math.abs(PIDap()));
@@ -237,7 +239,7 @@ public class Robot extends TimedRobot {
     if (intakeRun == true) {
       intake.set(1);
     } else if (joy.getRawButton(2)) {
-      intake.set(-.25);
+      intake.set(-.3);
     } else {
       intake.set(0);
     }
@@ -302,10 +304,10 @@ public class Robot extends TimedRobot {
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDap() {
-    pPickup =.03;
+    pPickup =.025;
     errorPickup = setpointPickup - camx2;
-    if (Math.abs(P*errorPickup) < .2) {
-      piPickup = .2;
+    if (Math.abs(P*errorPickup) < .15) {
+      piPickup = .15;
     } else {
       piPickup = pPickup*errorPickup;
     }
