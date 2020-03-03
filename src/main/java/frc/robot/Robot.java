@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    if (camy > -8 && camy < -10) {
+    if (camy > -8 && camy < -10) { // Moves back away from auto line then goes into auto shoot
       buffet.arcadeDrive(.75, 0);
       intake.set(-.25);
     } else if (tv == 1) {
@@ -151,13 +151,6 @@ public class Robot extends TimedRobot {
     lift();
 		
     intakeRun();
-    /*(if (joy.getRawButton(1) == true) {
-      autoPickup();
-    } else if (joy.getRawButton(2)){
-      intake.set(-.3);
-    } else {
-      intake.set(0);
-    } */
 
     manShooter();
     	  
@@ -173,7 +166,7 @@ public class Robot extends TimedRobot {
     aligned = false;
     PIDa();
     PIDs();
-
+    ///////////////////////////////////////////ALIGNMENT
     if (camx > 2) {
       right.set(0);
       left.set(Math.abs(piAlign));
@@ -183,17 +176,16 @@ public class Robot extends TimedRobot {
       left.set(0);
     } else if (camx > .5 && camx < 2) {
       aligned = true;
-      // We be aligned
-    } else {
-      System.out.println("This ain't it chief");
-    }
-
-    if (aligned == true) { // Still not sure about this whole system, only 12 degress of play in motor
+    } 
+    ///////////////////////////////////////////ALIGNMENT
+    ///////////////////////////////////////////SHOOTER
+    if (aligned == true) {
       solo.set(-PIDs());
     } else {
       solo.set(0);
     }                     // MIN DISTANCE IS 6.8\\
-
+    ///////////////////////////////////////////SHOOTER
+    ///////////////////////////////////////////BELT
     if (aligned == true && beltDelay >= 100) {
       belt.set(Value.kReverse);
     } else if (aligned == true && beltDelay < 100) {
@@ -202,20 +194,7 @@ public class Robot extends TimedRobot {
     } else {
       belt.set(Value.kOff);
     } 
-  }
- /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public void autoPickup() {
-
-    intake.set(1);
-
-    if (camx2 > .75) {
-      left.set(Math.abs(PIDap()));
-      alignedPickup = false;
-    } else if (camx2 < -.75) {
-      right.set(-(Math.abs(PIDap())));
-    } else if (camx2 < -.75 && camx2 > .75) {
-      alignedPickup = true;
-    }
+    ///////////////////////////////////////////BELT
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public void lift() {
@@ -282,10 +261,10 @@ public class Robot extends TimedRobot {
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDa() {
-    P =.03;
+    P =.03; // Change higher for less speed and lower for slower speed, change in very very small stages (like .01 small stages)
     error = setpoint - camx;
     if (Math.abs(P*error) < .15) {
-      piAlign = .15;
+      piAlign = .15; // This is the minimun speed for the motors to go, change this and the number in the line right above this (I wouldn't go below .15)
     } else {
       piAlign = P*error;
     }
@@ -293,24 +272,13 @@ public class Robot extends TimedRobot {
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDs() { 
-    pShooter = .036; // We're coming
+    pShooter = .036; // We're coming Look at PIDa for comments
     errorShooter = setShooter - Math.abs(camy);
     if (pShooter*errorShooter > -.75) {
-      piShooter = .75;
+      piShooter = .75; // Look at PIDa for comments
     } else {
       piShooter = pShooter*errorShooter;
     }
     return Math.abs(piShooter);
-  }
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public double PIDap() {
-    pPickup =.025;
-    errorPickup = setpointPickup - camx2;
-    if (Math.abs(P*errorPickup) < .15) {
-      piPickup = .15;
-    } else {
-      piPickup = pPickup*errorPickup;
-    }
-    return Math.abs(piPickup);
   }
 }
