@@ -91,7 +91,6 @@ public class Robot extends TimedRobot {
 
   double P, error, setpoint = 0, piAlign; // alignment P
   double pShooter, errorShooter, setShooter = -8, piShooter; // shooter P
-  double pPickup, errorPickup, setpointPickup = 0, piPickup; // intake P
 
 
   @Override
@@ -113,8 +112,6 @@ public class Robot extends TimedRobot {
   NetworkTableInstance.getDefault();
   SmartDashboard.putBoolean("Aligned", aligned);
   SmartDashboard.putNumber("PIShooter", piShooter);
-  SmartDashboard.putBoolean(("PickUp Alignment"), alignedPickup);
-  SmartDashboard.putNumber("camx2", camx2);
 
   PDP.getVoltage();
   PDP.getTemperature();
@@ -188,7 +185,7 @@ public class Robot extends TimedRobot {
     ///////////////////////////////////////////BELT
     if (aligned == true && beltDelay >= 100) {
       belt.set(Value.kReverse);
-    } else if (aligned == true && beltDelay < 100) {
+    } else if (aligned == true && beltDelay < 100) { // I WANT ENCODER SO WE CAN DO THIS A LOT BETTER AND AUTOMATICALLY
       belt.set(Value.kOff);
       ++beltDelay;
     } else {
