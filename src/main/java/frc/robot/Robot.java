@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -14,6 +15,8 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Relay.*;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 public class Robot extends TimedRobot {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -77,7 +80,7 @@ public class Robot extends TimedRobot {
   boolean alignedPickup;
   boolean intakeRun;
   boolean shootRun = false;
-  boolean firstTimeThru = true;
+  boolean gyroAngle1;
 
   DigitalInput inDown = new DigitalInput(6);
   DigitalInput inUp = new DigitalInput(5);
@@ -87,10 +90,17 @@ public class Robot extends TimedRobot {
   DigitalInput b2 = new DigitalInput(1);
   DigitalInput b3 = new DigitalInput(2);
 
+  Encoder encoder = new Encoder(5, 6);
+
+  Gyro gyroBoi = new ADXRS450_Gyro();
+
   int beltDelay;
+  int auto;
 
   double P, error, setpoint = 0, piAlign; // alignment P
   double pShooter, errorShooter, setShooter = -8, piShooter; // shooter P
+  double pAuto, errorAuto, setpointAuto = 0, piAuto; // alignment P
+
 
 
   @Override
@@ -130,13 +140,27 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     final double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    if (camy > -8 && camy < -10) { // Moves back away from auto line then goes into auto shoot
-      buffet.arcadeDrive(.75, 0);
-      intake.set(-.25);
-    } else if (tv == 1) {
+    if (auto < 3 && tv == 1) {
       autoShoot();
-    }
+      if (b3.get() == true) {
+        auto++;
+      }
+    } else if (gyroBoi.getAngle() < 180) {
+      buffet.arcadeDrive(0, PIDAuto());
+    } else if (tv == 1){
+      if (encoder.getDistance() < 92) {
+        buffet.arcadeDrive(.5, 0);
+      } else if (encoder.getDistance() > 92 && encoder.getDistance() < 120) {
+        buffet.arcadeDrive(.25, 0);
+      } else if (encoder.getDistance() > 120 && gyroBoi.getAngle() < 340) {
+        buffet.arcadeDrive(0, .75);
+      } else {
+        autoShoot();
+      }
+    } else {
+      buffet.arcadeDrive(0, 0);
   }
+ }
 	/*-=-=-=-=-=-= -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Override
   public void teleopPeriodic() {
@@ -277,5 +301,16 @@ public class Robot extends TimedRobot {
       piShooter = pShooter*errorShooter;
     }
     return Math.abs(piShooter);
+  }
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public double PIDAuto() { 
+    pAuto = .03; // Look at PIDa for comments
+    errorAuto = setpointAuto - gyroBoi.getAngle();
+    if (Math.abs(pAuto*errorAuto) < .15) {
+      piAuto = .15; // Look at PIDa for comments
+    } else {
+      piAuto = pAuto*errorAuto;
+    }
+    return piAuto;
   }
 }
