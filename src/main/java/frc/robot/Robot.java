@@ -269,7 +269,7 @@ public class Robot extends TimedRobot {
   }
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public double PIDs() { 
-    pShooter = .036; // We're coming Look at PIDa for comments
+    pShooter = .038; // Change higher for higher speed and lower for lower speed, also change in very small incraments idk if this is how you spell
     errorShooter = setShooter - Math.abs(camy);
     if (pShooter*errorShooter > -.75) {
       piShooter = .75; // Look at PIDa for comments
