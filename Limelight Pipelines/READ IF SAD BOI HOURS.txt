@@ -1,0 +1,7 @@
+VERY GOOD USE THESE pipeline goes with the top camera which IP Address is http://10.40.21.11:5801/. It is also limelight #1
+
+Lemon Tracking goes with the bottom camera which IP Address is http://10.40.21.12:5801/. It is also limelight #2
+
+For panic changing, try exposure first then black light exposure to help with lights in the gym.
+
+If you need help text me at 608-804-0553 or Snapchat: blake98989
